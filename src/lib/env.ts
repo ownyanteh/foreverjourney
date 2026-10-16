@@ -19,6 +19,22 @@ function optionalEnv(key: string, fallback = ''): string {
   return (process.env[key] || fallback).trim()
 }
 
+/**
+ * APP_URL if set; otherwise derived from Vercel's system variables
+ * (stable production domain first, then the per-deployment URL),
+ * falling back to localhost for local development.
+ */
+function resolveAppUrl(): string {
+  const explicit = optionalEnv('APP_URL')
+  if (explicit) return explicit.replace(/\/+$/, '')
+
+  const vercelHost =
+    optionalEnv('VERCEL_PROJECT_PRODUCTION_URL') || optionalEnv('VERCEL_URL')
+  if (vercelHost) return `https://${vercelHost}`
+
+  return 'http://localhost:3000'
+}
+
 // ── Server-only variables ─────────────────────────────────────────────────────
 export const env = {
   // MongoDB
@@ -28,7 +44,7 @@ export const env = {
   AUTH_SECRET: requireEnv('AUTH_SECRET'),
 
   // Application base URL (no trailing slash)
-  APP_URL: requireEnv('APP_URL'),
+  APP_URL: resolveAppUrl(),
 
   // OpenRouteService — server-side API key for Directions calls (keep secret)
   ORS_API_KEY: requireEnv('ORS_API_KEY'),
