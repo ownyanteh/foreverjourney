@@ -13,11 +13,14 @@ export function middleware(req: NextRequest) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
+      // Next.js App Router hydrates via inline <script> tags, so 'unsafe-inline' is required.
       // MapLibre GL JS requires blob: and data: for workers/tiles
-      "script-src 'self' 'unsafe-eval' blob:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https://res.cloudinary.com https://tiles.openfreemap.org",
       "font-src 'self' https://fonts.gstatic.com",
+      // Welcome music and checkpoint audio are hosted on Cloudinary
+      "media-src 'self' blob: https://res.cloudinary.com",
       "connect-src 'self' https://tiles.openfreemap.org https://res.cloudinary.com",
       "worker-src blob:",
       "frame-ancestors 'none'",
