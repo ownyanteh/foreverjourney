@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/db/connect'
 import { Journey } from '@/lib/db/models/Journey'
-import { Checkpoint } from '@/lib/db/models/Checkpoint'
 import { requireAdminSession } from '@/lib/auth/session'
 
 type Params = { params: Promise<{ id: string }> }
@@ -19,17 +18,11 @@ export async function POST(_req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: 'Journey is already active.' }, { status: 400 })
     }
 
-    // Validate: must have at least one active checkpoint or a final destination
-    const checkpointCount = await Checkpoint.countDocuments({ journeyId: id, isActive: true })
+    // Validate: a final destination is required; checkpoints are optional
+    // (with none, the recipient is guided straight to the final destination)
     if (!journey.finalDestination?.latitude) {
       return NextResponse.json(
         { error: 'Please configure the final destination before activating.' },
-        { status: 400 }
-      )
-    }
-    if (checkpointCount === 0) {
-      return NextResponse.json(
-        { error: 'Please add at least one checkpoint before activating.' },
         { status: 400 }
       )
     }

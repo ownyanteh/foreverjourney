@@ -186,7 +186,7 @@ export default function CheckpointsPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <MapPin className="h-10 w-10 text-blush-300 mx-auto mb-4" />
-            <p className="text-charcoal/60 mb-4">No checkpoints yet. Add your first stop!</p>
+            <p className="text-charcoal/60 mb-4">No checkpoints yet. They're optional: with none, the journey goes straight to the final destination.</p>
             <Button onClick={openAdd} size="sm"><Plus className="h-4 w-4" /> Add Checkpoint</Button>
           </CardContent>
         </Card>

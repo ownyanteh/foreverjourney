@@ -77,8 +77,9 @@ export default function JourneyStatusControls({ journeyId, status }: Props) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Reset this journey?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will set the journey back to Draft status and abandon active sessions.
-                  Historical events and responses are preserved for your records.
+                  This sets the journey back to Draft and permanently deletes all of its history:
+                  progress, checkpoint unlocks, the event timeline and the yes/no response.
+                  Shared photos and messages are kept.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

@@ -7,6 +7,7 @@ export type EventType =
   | 'final_destination_unlocked'
   | 'proposal_response_submitted'
   | 'journey_completed'
+  | 'memory_shared'
   | 'journey_reset'
 
 export interface IJourneyEvent extends Document {
@@ -31,6 +32,7 @@ const JourneyEventSchema = new Schema<IJourneyEvent>(
         'final_destination_unlocked',
         'proposal_response_submitted',
         'journey_completed',
+        'memory_shared',
         'journey_reset',
       ],
       required: true,

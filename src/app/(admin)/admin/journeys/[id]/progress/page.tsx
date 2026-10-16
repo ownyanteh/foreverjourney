@@ -9,10 +9,11 @@ import { Checkpoint } from '@/lib/db/models/Checkpoint'
 import { ProposalResponse } from '@/lib/db/models/ProposalResponse'
 import { JourneyEvent } from '@/lib/db/models/JourneyEvent'
 import { JourneySession } from '@/lib/db/models/JourneySession'
+import { Memory } from '@/lib/db/models/Memory'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Heart, CheckCircle2, Clock } from 'lucide-react'
+import { ArrowLeft, Heart, CheckCircle2, Clock, Camera, Download } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 
 export const metadata: Metadata = { title: 'Journey Progress' }
@@ -33,6 +34,7 @@ export default async function JourneyProgressPage({ params }: Props) {
   const sessions = (await JourneySession.find({ journeyId: id }).sort({ startedAt: -1 }).lean()) as any[]
   const response = (await ProposalResponse.findOne({ journeyId: id }).lean()) as any
   const checkpoints = (await Checkpoint.find({ journeyId: id, isActive: true }).sort({ sequence: 1 }).lean()) as any[]
+  const memories = (await Memory.find({ journeyId: id }).sort({ createdAt: -1 }).lean()) as any[]
 
   // Map checkpoint IDs to names for display
   const checkpointMap = Object.fromEntries(checkpoints.map((c) => [c._id.toString(), c.title]))
@@ -44,6 +46,7 @@ export default async function JourneyProgressPage({ params }: Props) {
     final_destination_unlocked: '✨ Final destination reached',
     proposal_response_submitted: '💍 Response submitted',
     journey_completed: '🎉 Journey completed',
+    memory_shared: '📸 Memory shared',
     journey_reset: '🔄 Journey reset',
   }
 
@@ -83,6 +86,45 @@ export default async function JourneyProgressPage({ params }: Props) {
           <CardContent className="p-5 flex items-center gap-3 text-charcoal/50">
             <Clock className="h-5 w-5" />
             <p className="text-sm">Waiting for the proposal response…</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Memories shared at the final destination */}
+      {memories.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Camera className="h-5 w-5 text-burgundy" />
+              Memories ({memories.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {memories.map((m) => (
+                <figure key={m._id.toString()} className="rounded-xl overflow-hidden border border-blush-200 bg-cream">
+                  {m.imageUrl && (
+                    <a href={m.imageUrl} target="_blank" rel="noopener noreferrer" className="block relative group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={m.imageUrl.replace('/upload/', '/upload/c_fill,w_500,h_500,q_auto,f_auto/')}
+                        alt={m.message || 'Shared memory'}
+                        className="w-full aspect-square object-cover"
+                        loading="lazy"
+                      />
+                      <span className="absolute bottom-2 right-2 bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Download className="h-3.5 w-3.5" />
+                        <span className="sr-only">Open full size</span>
+                      </span>
+                    </a>
+                  )}
+                  <figcaption className="px-3 py-2 space-y-1">
+                    {m.message && <p className="text-sm text-charcoal font-serif italic whitespace-pre-wrap">{m.message}</p>}
+                    <p className="text-xs text-charcoal/40">{format(new Date(m.createdAt), 'PPP p')}</p>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

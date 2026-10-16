@@ -31,6 +31,13 @@ const responseLimiter = new RateLimiterMemory({
   blockDuration: 60 * 60,
 })
 
+/** Memory uploads at the final destination: 15 per 10 minutes per session */
+const memoryLimiter = new RateLimiterMemory({
+  points: 15,
+  duration: 60 * 10,
+  blockDuration: 60 * 5,
+})
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getClientIP(req: NextRequest): string {
@@ -78,4 +85,8 @@ export async function checkCheckpointRateLimit(sessionId: string): Promise<RateL
 
 export async function checkResponseRateLimit(sessionId: string): Promise<RateLimitResult> {
   return checkLimit(responseLimiter, `response:${sessionId}`)
+}
+
+export async function checkMemoryRateLimit(sessionId: string): Promise<RateLimitResult> {
+  return checkLimit(memoryLimiter, `memory:${sessionId}`)
 }

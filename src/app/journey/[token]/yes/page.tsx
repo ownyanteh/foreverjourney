@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { motion, useReducedMotion } from 'framer-motion'
 import { Heart } from 'lucide-react'
+import MemoryCapture from '@/components/journey/MemoryCapture'
 
 interface CompletionData {
   responseStatus: string
@@ -44,7 +45,7 @@ export default function YesPage() {
   }, [prefersReducedMotion])
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-burgundy via-[#a03050] to-[#7A2038]">
+    <div className="min-h-dvh flex flex-col items-center justify-center relative overflow-hidden py-12 bg-gradient-to-br from-burgundy via-[#a03050] to-[#7A2038]">
       {/* Floating hearts */}
       {hearts.map((h) => (
         <span
@@ -106,6 +107,17 @@ export default function YesPage() {
         >
           💍
         </motion.div>
+
+        {data && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: prefersReducedMotion ? 0 : 2.2 }}
+            className="mt-10"
+          >
+            <MemoryCapture token={token} />
+          </motion.div>
+        )}
       </motion.div>
     </div>
   )
