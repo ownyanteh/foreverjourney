@@ -8,38 +8,52 @@
  *
  * You will be prompted for the admin email and password interactively,
  * or you can set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD env vars.
+ *
+ * To change the password of an existing admin: npm run seed:admin -- --reset
  */
 
 import readline from 'readline'
 import bcrypt from 'bcryptjs'
 import mongoose from 'mongoose'
 
+const RESET = process.argv.includes('--reset')
+
 async function prompt(question: string, silent = false): Promise<string> {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
-  return new Promise((resolve) => {
-    if (silent) {
-      process.stdout.write(question)
-      process.stdin.setRawMode?.(true)
-      let input = ''
-      process.stdin.on('data', (chunk) => {
-        const char = chunk.toString()
-        if (char === '\n' || char === '\r') {
-          process.stdin.setRawMode?.(false)
-          process.stdout.write('\n')
-          rl.close()
-          resolve(input)
-        } else if (char === '\u0003') {
-          process.exit()
-        } else {
-          input += char
-        }
-      })
-    } else {
+  if (!silent) {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout })
+    return new Promise((resolve) => {
       rl.question(question, (answer) => {
         rl.close()
         resolve(answer.trim())
       })
+    })
+  }
+
+  return new Promise((resolve) => {
+    process.stdout.write(question)
+    process.stdin.setRawMode?.(true)
+    process.stdin.resume()
+    let input = ''
+    const onData = (chunk: Buffer) => {
+      // A chunk can hold several characters (e.g. a paste), so handle each one
+      for (const char of chunk.toString('utf8')) {
+        if (char === '\n' || char === '\r') {
+          process.stdin.off('data', onData)
+          process.stdin.setRawMode?.(false)
+          process.stdin.pause()
+          process.stdout.write('\n')
+          resolve(input)
+          return
+        } else if (char === '\u0003') {
+          process.exit(1)
+        } else if (char === '\u007f' || char === '\b') {
+          input = input.slice(0, -1)
+        } else if (char >= ' ') {
+          input += char
+        }
+      }
     }
+    process.stdin.on('data', onData)
   })
 }
 
@@ -63,6 +77,17 @@ async function main() {
     console.error('❌  Password must be at least 12 characters.')
     process.exit(1)
   }
+  if (password.length > 128) {
+    console.error('❌  Password must be at most 128 characters (the login form rejects longer ones).')
+    process.exit(1)
+  }
+  if (!process.env.SEED_ADMIN_PASSWORD) {
+    const confirm = await prompt('Confirm password: ', true)
+    if (confirm !== password) {
+      console.error('❌  Passwords do not match.')
+      process.exit(1)
+    }
+  }
 
   console.log('\n🔗  Connecting to MongoDB...')
   await mongoose.connect(MONGODB_URI)
@@ -70,14 +95,21 @@ async function main() {
   // Avoid loading the full Next.js env validation; import model directly
   const { AdminUser } = await import('../src/lib/db/models/AdminUser.js')
 
+  const passwordHash = await bcrypt.hash(password, 12)
+
   const existing = await AdminUser.findOne({ email: email.toLowerCase() })
   if (existing) {
-    console.log('ℹ️   An admin with that email already exists. No changes made.')
+    if (!RESET) {
+      console.log('ℹ️   An admin with that email already exists. No changes made.')
+      console.log('    To change its password, run: npm run seed:admin -- --reset')
+      await mongoose.disconnect()
+      return
+    }
+    await AdminUser.updateOne({ _id: existing._id }, { passwordHash })
+    console.log(`✅  Password reset for ${email}`)
     await mongoose.disconnect()
     return
   }
-
-  const passwordHash = await bcrypt.hash(password, 12)
   await AdminUser.create({ email: email.toLowerCase(), passwordHash, role: 'admin' })
 
   console.log(`✅  Admin account created for ${email}`)

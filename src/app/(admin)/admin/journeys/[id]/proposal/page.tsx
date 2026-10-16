@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Heart, MapPin, Save } from 'lucide-react'
 import Link from 'next/link'
+import GoogleMapsPasteInput from '@/components/admin/GoogleMapsPasteInput'
 
 type ProposalFormData = z.infer<typeof proposalContentSchema>
 type FinalDestFormData = z.infer<typeof finalDestinationSchema>
@@ -117,6 +118,12 @@ export default function ProposalCustomizationPage() {
               <Label>Location name <span className="text-charcoal/40 text-xs">(shown only after reveal)</span></Label>
               <Input {...destForm.register('name')} placeholder="The Rooftop Garden" />
             </div>
+            <GoogleMapsPasteInput
+              onCoordinates={(lat, lng) => {
+                destForm.setValue('latitude', Number(lat.toFixed(7)), { shouldDirty: true, shouldValidate: true })
+                destForm.setValue('longitude', Number(lng.toFixed(7)), { shouldDirty: true, shouldValidate: true })
+              }}
+            />
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Latitude *</Label>

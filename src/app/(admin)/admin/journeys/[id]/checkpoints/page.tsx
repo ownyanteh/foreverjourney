@@ -13,6 +13,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog'
 import Link from 'next/link'
+import GoogleMapsPasteInput from '@/components/admin/GoogleMapsPasteInput'
 
 const CheckpointMapEditor = dynamic(
   () => import('@/components/admin/CheckpointMapEditor'),
@@ -239,6 +240,8 @@ export default function CheckpointsPage() {
               <Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="The Coffee Shop Where We Met" />
             </div>
 
+            <GoogleMapsPasteInput onCoordinates={handleMapClick} />
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Latitude *</Label>
@@ -250,7 +253,7 @@ export default function CheckpointsPage() {
               </div>
             </div>
 
-            <p className="text-xs text-charcoal/50">Or click the map above to set coordinates.</p>
+            <p className="text-xs text-charcoal/50">Or click the map above, or type them in.</p>
 
             <div className="space-y-1.5">
               <Label>Geofence radius (metres)</Label>
