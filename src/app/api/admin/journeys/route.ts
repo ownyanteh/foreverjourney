@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
     const journey = await Journey.create({
       adminId: session.adminId,
       title: parsed.data.title,
+      mode: parsed.data.mode ?? 'route',
       welcomeContent: parsed.data.welcomeContent ?? {},
       theme: parsed.data.theme ?? {},
       status: 'draft',

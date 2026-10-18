@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { JourneyTypeCards, type JourneyMode } from '@/components/admin/JourneyModeSelector'
 import {
   adminCard,
   adminCardHeader,
@@ -31,20 +32,37 @@ import {
 
 type FormData = z.infer<typeof createJourneySchema>
 
+const ROUTE_INTRO =
+  "I've planned a little adventure for you. Follow the clues, enjoy the journey, and trust that every step has a reason. Are you ready?"
+const QUESTIONS_INTRO =
+  "I want to take a moment to remember some of the moments we've shared, through your eyes. Are you ready?"
+
 export default function NewJourneyPage() {
   const router = useRouter()
   const [error, setError] = useState('')
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, getValues, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(createJourneySchema),
     defaultValues: {
       title: '',
+      mode: 'route',
       welcomeContent: {
         greeting: 'Hey, my love.',
-        introduction: "I've planned a little adventure for you. Follow the clues, enjoy the journey, and trust that every step has a reason. Are you ready?",
+        introduction: ROUTE_INTRO,
       },
     },
   })
+
+  const mode = (watch('mode') ?? 'route') as JourneyMode
+
+  function chooseMode(next: JourneyMode) {
+    setValue('mode', next)
+    // Swap the default introduction to match the type, but never overwrite custom text
+    const intro = getValues('welcomeContent.introduction')
+    if (intro === ROUTE_INTRO || intro === QUESTIONS_INTRO) {
+      setValue('welcomeContent.introduction', next === 'questions' ? QUESTIONS_INTRO : ROUTE_INTRO)
+    }
+  }
 
   async function onSubmit(data: FormData) {
     setError('')
@@ -81,6 +99,13 @@ export default function NewJourneyPage() {
               <Input id="title" placeholder="Our Forever Journey" className={adminInput} error={errors.title?.message} {...register('title')} />
               {errors.title && <p className="text-xs text-red-600">{errors.title.message}</p>}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className={adminCard}>
+          <CardHeader className={adminCardHeader}><CardTitle className={adminCardTitle}>Journey type</CardTitle></CardHeader>
+          <CardContent className={adminCardBody}>
+            <JourneyTypeCards value={mode} onChange={chooseMode} />
           </CardContent>
         </Card>
 

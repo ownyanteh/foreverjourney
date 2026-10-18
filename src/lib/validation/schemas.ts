@@ -79,6 +79,7 @@ export const memoryQuestionSchema = z.object({
 
 export const createJourneySchema = z.object({
   title: z.string().min(1, 'Title is required').max(120).trim(),
+  mode: z.enum(['route', 'questions']).optional(),
   welcomeContent: welcomeContentSchema.optional(),
   theme: themeSchema.optional(),
 })
