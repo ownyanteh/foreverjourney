@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Heart, Map, MessageCircleHeart, Camera, Link as LinkIcon, Activity, Sparkle, ChevronRight } from 'lucide-react'
 import { getAdminSession } from '@/lib/auth/session'
 
@@ -31,6 +32,12 @@ const features = [
   { icon: LinkIcon, title: 'Private by design', body: 'Only someone with your unique link can open the journey, and you can revoke it any time.' },
   { icon: Activity, title: 'Follow along', body: 'See her progress, her answers and her response from your dashboard.' },
 ]
+
+/** Soft oval fade so the cut-out photo melts into the hero gradient */
+const coupleMask: React.CSSProperties = {
+  maskImage: 'radial-gradient(ellipse 70% 78% at 55% 42%, #000 58%, transparent 100%)',
+  WebkitMaskImage: 'radial-gradient(ellipse 70% 78% at 55% 42%, #000 58%, transparent 100%)',
+}
 
 export default async function HomePage() {
   const session = await getAdminSession()
@@ -67,7 +74,7 @@ export default async function HomePage() {
           </nav>
         </header>
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 pt-10 pb-20 sm:pt-16 sm:pb-28 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-4 sm:px-6 pt-10 pb-20 sm:pt-16 sm:pb-28 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="text-center lg:text-left">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.22em] text-white/70">A proposal she’ll never forget</p>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-[56px] font-semibold leading-[1.08]">
@@ -92,18 +99,42 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Proposal preview */}
-          <div className="mx-auto w-full max-w-[300px]" aria-hidden="true">
-            <div className="rounded-[36px] border border-white/15 bg-[radial-gradient(110%_70%_at_50%_30%,#62192D_0%,#320C17_60%,#1A060C_100%)] p-6 pt-10 text-center shadow-[0_40px_80px_rgba(0,0,0,0.4)]">
-              <p className="font-serif text-lg text-white/85">You made it, my love.</p>
-              <div className="mx-auto my-6 flex h-20 w-20 items-center justify-center rounded-full border-4 border-white/80 bg-gradient-to-br from-burgundy-200 to-gold-200">
-                <Heart className="h-8 w-8 fill-burgundy text-burgundy" />
-              </div>
-              <p className="font-serif text-[28px] font-bold leading-tight text-white">Will you marry me?</p>
-              <div className="mt-6 rounded-2xl bg-gradient-to-b from-gold-300 to-gold py-3.5 text-base font-bold text-[#320C17] shadow-[0_0_0_6px_rgba(216,180,106,0.18)]">
+          {/* Spacer: the couple photo fills this side on large screens */}
+          <div className="hidden lg:block lg:min-h-[520px]" aria-hidden="true" />
+
+          {/* Couple photo, in the flow on phones and tablets */}
+          <div className="relative mx-auto -mb-20 sm:-mb-28 h-[380px] sm:h-[460px] w-full max-w-[360px] lg:hidden" aria-hidden="true">
+            <div className="absolute inset-x-6 bottom-10 top-16 rounded-full bg-[radial-gradient(closest-side,rgba(216,180,106,0.28),rgba(216,180,106,0))] blur-2xl" />
+            <Image
+              src="/images/hero-couple.webp"
+              alt=""
+              fill
+              priority
+              sizes="360px"
+              className="object-contain object-bottom"
+              style={coupleMask}
+            />
+          </div>
+        </div>
+
+        {/* Couple photo, blended into the right of the hero on large screens */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-20 mx-auto hidden max-w-6xl lg:block" aria-hidden="true">
+          <div className="absolute bottom-0 right-0 h-full max-h-[640px] aspect-[799/1100]">
+            <div className="absolute inset-x-10 bottom-16 top-10 rounded-full bg-[radial-gradient(closest-side,rgba(216,180,106,0.3),rgba(206,112,137,0.12)_60%,rgba(206,112,137,0))] blur-3xl" />
+            <Image
+              src="/images/hero-couple.webp"
+              alt=""
+              fill
+              priority
+              sizes="(min-width: 1024px) 460px, 0px"
+              className="object-contain object-bottom"
+              style={coupleMask}
+            />
+            <div className="absolute -left-10 xl:-left-20 bottom-[20%] w-[200px] rounded-[22px] border border-white/20 bg-white/10 px-5 py-4 text-center shadow-[0_24px_50px_rgba(0,0,0,0.35)] backdrop-blur-md">
+              <p className="font-serif text-lg font-semibold leading-tight text-white">Will you marry me?</p>
+              <div className="mt-3 rounded-xl bg-gradient-to-b from-gold-300 to-gold py-2 text-sm font-bold text-[#320C17] shadow-[0_0_0_5px_rgba(216,180,106,0.18)]">
                 YES! ❤️
               </div>
-              <p className="mt-3 pb-2 text-sm text-white/55">No</p>
             </div>
           </div>
         </div>
