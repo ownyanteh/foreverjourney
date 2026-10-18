@@ -40,6 +40,21 @@ export async function POST(req: NextRequest, { params }: Params) {
     })
     if (!session) return NextResponse.json({ error: 'Session not found.' }, { status: 404 })
 
+    // Already unlocked (arrived earlier, or finished the memory questions):
+    // return the proposal content without re-checking location
+    if (session.finalDestinationUnlockedAt) {
+      return NextResponse.json({
+        isApproaching: true,
+        isArrived: true,
+        proposalContent: journey.proposalContent,
+        finalDestinationName: journey.finalDestination?.name ?? null,
+      })
+    }
+
+    if (journey.mode === 'questions') {
+      return NextResponse.json({ error: 'Answer the questions first.' }, { status: 422 })
+    }
+
     // Ensure all required checkpoints are completed before unlocking final destination
     const requiredCheckpoints = await Checkpoint.find({
       journeyId: journey._id,

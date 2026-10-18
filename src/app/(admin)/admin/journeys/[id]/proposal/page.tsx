@@ -23,6 +23,7 @@ export default function ProposalCustomizationPage() {
   const journeyId = params.id as string
   const [loading, setLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [isQuestionsMode, setIsQuestionsMode] = useState(false)
 
   const proposalForm = useForm<ProposalFormData>({
     resolver: zodResolver(proposalContentSchema),
@@ -56,6 +57,7 @@ export default function ProposalCustomizationPage() {
       .then((json) => {
         if (json.journey?.proposalContent) proposalForm.reset(json.journey.proposalContent)
         if (json.journey?.finalDestination) destForm.reset(json.journey.finalDestination)
+        setIsQuestionsMode(json.journey?.mode === 'questions')
       })
       .finally(() => setLoading(false))
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,7 +106,8 @@ export default function ProposalCustomizationPage() {
         <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3">Failed to save. Please try again.</div>
       )}
 
-      {/* Final Destination */}
+      {/* Final Destination (route journeys only; question journeys have no location) */}
+      {!isQuestionsMode && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -154,6 +157,7 @@ export default function ProposalCustomizationPage() {
           </form>
         </CardContent>
       </Card>
+      )}
 
       {/* Proposal Screen */}
       <Card>

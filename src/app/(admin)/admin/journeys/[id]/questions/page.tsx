@@ -1,0 +1,201 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, ArrowUp, ArrowDown, Plus, Trash2, Save, MessageCircleHeart } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent } from '@/components/ui/card'
+import { MIN_MEMORY_QUESTIONS, MAX_MEMORY_QUESTIONS } from '@/lib/validation/schemas'
+
+interface QuestionDraft {
+  prompt: string
+  hint: string
+}
+
+const EXAMPLES = [
+  { prompt: 'The night we first met', hint: 'Do you remember what you thought of me?' },
+  { prompt: 'Our first trip together', hint: 'That weekend when everything went wrong and it was still perfect.' },
+  { prompt: 'The day I met your family', hint: 'I was so nervous. Were you?' },
+  { prompt: 'Our first "I love you"', hint: '' },
+  { prompt: 'A random Tuesday that turned into a favourite memory', hint: '' },
+]
+
+const empty = (): QuestionDraft => ({ prompt: '', hint: '' })
+
+export default function MemoryQuestionsEditorPage() {
+  const params = useParams()
+  const journeyId = params.id as string
+
+  const [questions, setQuestions] = useState<QuestionDraft[]>([])
+  const [mode, setMode] = useState<'route' | 'questions'>('route')
+  const [loading, setLoading] = useState(true)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    fetch(`/api/admin/journeys/${journeyId}`)
+      .then((r) => r.json())
+      .then((json) => {
+        const existing: QuestionDraft[] = (json.journey?.memoryQuestions ?? []).map((q: QuestionDraft) => ({
+          prompt: q.prompt ?? '',
+          hint: q.hint ?? '',
+        }))
+        setQuestions(existing.length > 0 ? existing : Array.from({ length: MIN_MEMORY_QUESTIONS }, empty))
+        setMode(json.journey?.mode === 'questions' ? 'questions' : 'route')
+      })
+      .finally(() => setLoading(false))
+  }, [journeyId])
+
+  function update(index: number, patch: Partial<QuestionDraft>) {
+    setQuestions((prev) => prev.map((q, i) => (i === index ? { ...q, ...patch } : q)))
+    setSaveStatus('idle')
+  }
+
+  function move(index: number, delta: -1 | 1) {
+    setQuestions((prev) => {
+      const next = [...prev]
+      const target = index + delta
+      if (target < 0 || target >= next.length) return prev
+      ;[next[index], next[target]] = [next[target], next[index]]
+      return next
+    })
+    setSaveStatus('idle')
+  }
+
+  async function save() {
+    const filled = questions
+      .map((q) => ({ prompt: q.prompt.trim(), hint: q.hint.trim() }))
+      .filter((q) => q.prompt)
+    setError('')
+    setSaveStatus('saving')
+    const res = await fetch(`/api/admin/journeys/${journeyId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memoryQuestions: filled }),
+    })
+    if (!res.ok) {
+      setSaveStatus('error')
+      setError('Could not save. Please check your questions and try again.')
+      return
+    }
+    setQuestions(filled.length > 0 ? filled : [empty()])
+    setSaveStatus('saved')
+  }
+
+  const filledCount = questions.filter((q) => q.prompt.trim()).length
+
+  if (loading) {
+    return <div className="h-64 bg-blush-100 animate-pulse rounded-2xl" />
+  }
+
+  return (
+    <div className="space-y-6 max-w-2xl">
+      <div className="flex items-center gap-4">
+        <Button asChild variant="ghost" size="icon-sm">
+          <Link href={`/admin/journeys/${journeyId}`}><ArrowLeft className="h-4 w-4" /></Link>
+        </Button>
+        <div>
+          <h1 className="font-serif text-2xl font-semibold text-charcoal">Memory Questions</h1>
+          <p className="text-charcoal/60 text-sm mt-0.5">
+            {MIN_MEMORY_QUESTIONS}–{MAX_MEMORY_QUESTIONS} moments you&apos;ve shared. She&apos;ll answer each with how it
+            made her feel, then the proposal appears.
+          </p>
+        </div>
+      </div>
+
+      {mode !== 'questions' && (
+        <div className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          This journey is set to <strong>Route &amp; destination</strong>. To use these questions, choose{' '}
+          <strong>Memory questions</strong> as the journey type on the{' '}
+          <Link href={`/admin/journeys/${journeyId}`} className="underline">journey overview</Link>.
+        </div>
+      )}
+
+      <div className="space-y-4">
+        {questions.map((q, i) => (
+          <Card key={i}>
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-full bg-burgundy text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                  {i + 1}
+                </span>
+                <span className="text-sm font-medium text-charcoal flex-1">Moment {i + 1}</span>
+                <Button type="button" variant="ghost" size="icon-sm" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up">
+                  <ArrowUp className="h-4 w-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon-sm" onClick={() => move(i, 1)} disabled={i === questions.length - 1} aria-label="Move down">
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-red-400 hover:bg-red-50"
+                  onClick={() => { setQuestions((prev) => prev.filter((_, j) => j !== i)); setSaveStatus('idle') }}
+                  disabled={questions.length <= 1}
+                  aria-label="Remove"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor={`prompt-${i}`}>The moment *</Label>
+                <Input
+                  id={`prompt-${i}`}
+                  value={q.prompt}
+                  maxLength={300}
+                  onChange={(e) => update(i, { prompt: e.target.value })}
+                  placeholder={EXAMPLES[i % EXAMPLES.length].prompt}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor={`hint-${i}`}>
+                  A little note <span className="text-charcoal/40 font-normal">(optional, shown under the moment)</span>
+                </Label>
+                <Textarea
+                  id={`hint-${i}`}
+                  rows={2}
+                  value={q.hint}
+                  maxLength={300}
+                  onChange={(e) => update(i, { hint: e.target.value })}
+                  placeholder={EXAMPLES[i % EXAMPLES.length].hint || 'Add a detail only the two of you would know…'}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {questions.length < MAX_MEMORY_QUESTIONS && (
+        <Button type="button" variant="outline" onClick={() => { setQuestions((prev) => [...prev, empty()]); setSaveStatus('idle') }} className="gap-1.5">
+          <Plus className="h-4 w-4" />
+          Add a moment
+        </Button>
+      )}
+
+      <div className="flex items-center gap-3 text-sm">
+        <MessageCircleHeart className={`h-4 w-4 ${filledCount >= MIN_MEMORY_QUESTIONS ? 'text-emerald-600' : 'text-charcoal/40'}`} />
+        <span className={filledCount >= MIN_MEMORY_QUESTIONS ? 'text-emerald-700' : 'text-charcoal/60'}>
+          {filledCount} of {MIN_MEMORY_QUESTIONS}–{MAX_MEMORY_QUESTIONS} moments written
+          {filledCount < MIN_MEMORY_QUESTIONS && ` (add ${MIN_MEMORY_QUESTIONS - filledCount} more before activating)`}
+        </span>
+      </div>
+
+      {error && (
+        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3" role="alert">{error}</div>
+      )}
+
+      <div className="flex items-center gap-3">
+        <Button onClick={save} loading={saveStatus === 'saving'} className="gap-1.5">
+          {saveStatus !== 'saving' && <Save className="h-4 w-4" />}
+          Save Questions
+        </Button>
+        {saveStatus === 'saved' && <span className="text-sm text-emerald-700">Saved</span>}
+      </div>
+    </div>
+  )
+}

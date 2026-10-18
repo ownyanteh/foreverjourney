@@ -13,9 +13,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   ArrowLeft, Map, Heart, Link as LinkIcon,
-  Activity, CheckCircle2, Pencil
+  Activity, CheckCircle2, Pencil, MessageCircleHeart
 } from 'lucide-react'
 import JourneyStatusControls from '@/components/admin/JourneyStatusControls'
+import JourneyModeSelector from '@/components/admin/JourneyModeSelector'
 import { formatDistanceToNow } from 'date-fns'
 
 export const metadata: Metadata = { title: 'Journey Overview' }
@@ -39,9 +40,14 @@ export default async function JourneyOverviewPage({ params }: Params) {
   const journeyId = journey._id.toString()
   const statusVariant = journey.status as 'draft' | 'active' | 'completed' | 'deactivated'
 
+  const isQuestions = journey.mode === 'questions'
+  const questionCount = (journey.memoryQuestions ?? []).length
+
   const navItems = [
     { href: `/admin/journeys/${journeyId}/edit`, icon: <Pencil className="h-4 w-4" />, label: 'Edit Welcome' },
-    { href: `/admin/journeys/${journeyId}/checkpoints`, icon: <Map className="h-4 w-4" />, label: 'Checkpoints' },
+    isQuestions
+      ? { href: `/admin/journeys/${journeyId}/questions`, icon: <MessageCircleHeart className="h-4 w-4" />, label: 'Questions' }
+      : { href: `/admin/journeys/${journeyId}/checkpoints`, icon: <Map className="h-4 w-4" />, label: 'Checkpoints' },
     { href: `/admin/journeys/${journeyId}/proposal`, icon: <Heart className="h-4 w-4" />, label: 'Proposal' },
     { href: `/admin/journeys/${journeyId}/invitation`, icon: <LinkIcon className="h-4 w-4" />, label: 'Invitation' },
     { href: `/admin/journeys/${journeyId}/progress`, icon: <Activity className="h-4 w-4" />, label: 'Progress' },
@@ -52,6 +58,8 @@ export default async function JourneyOverviewPage({ params }: Params) {
     checkpoint_unlocked: '📍 Checkpoint unlocked',
     checkpoint_skipped: '⏭️ Checkpoint skipped',
     final_destination_unlocked: '✨ Final destination reached',
+    questions_completed: '💬 Memory questions answered',
+    memory_shared: '📸 Memory shared',
     proposal_response_submitted: '💍 Response submitted',
     journey_completed: '🎉 Journey completed',
     journey_reset: '🔄 Journey reset',
@@ -85,6 +93,12 @@ export default async function JourneyOverviewPage({ params }: Params) {
         hasInvitation={!!journey.invitationTokenHash}
       />
 
+      <JourneyModeSelector
+        journeyId={journeyId}
+        mode={isQuestions ? 'questions' : 'route'}
+        locked={journey.status === 'active'}
+      />
+
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {navItems.map((item) => (
           <Button key={item.href} asChild variant="secondary" className="h-auto flex-col gap-2 py-4">
@@ -102,8 +116,8 @@ export default async function JourneyOverviewPage({ params }: Params) {
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-6 w-6 text-burgundy" />
               <div>
-                <p className="text-xl font-semibold text-charcoal">{checkpoints.length}</p>
-                <p className="text-xs text-charcoal/60">Active checkpoints</p>
+                <p className="text-xl font-semibold text-charcoal">{isQuestions ? questionCount : checkpoints.length}</p>
+                <p className="text-xs text-charcoal/60">{isQuestions ? 'Memory questions' : 'Active checkpoints'}</p>
               </div>
             </div>
           </CardContent>

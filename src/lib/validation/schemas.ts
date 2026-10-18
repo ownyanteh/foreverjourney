@@ -67,6 +67,16 @@ export const finalDestinationSchema = z.object({
   manualFallbackEnabled: z.boolean().default(false),
 })
 
+export const MIN_MEMORY_QUESTIONS = 3
+export const MAX_MEMORY_QUESTIONS = 5
+
+export const FEELINGS = ['loved', 'happy', 'laughed', 'touched', 'peaceful', 'excited'] as const
+
+export const memoryQuestionSchema = z.object({
+  prompt: z.string().trim().min(1, 'Question is required').max(300),
+  hint: z.string().trim().max(300).default(''),
+})
+
 export const createJourneySchema = z.object({
   title: z.string().min(1, 'Title is required').max(120).trim(),
   welcomeContent: welcomeContentSchema.optional(),
@@ -79,6 +89,8 @@ export const updateJourneySchema = z.object({
   theme: themeSchema.optional(),
   proposalContent: proposalContentSchema.optional(),
   finalDestination: finalDestinationSchema.optional(),
+  mode: z.enum(['route', 'questions']).optional(),
+  memoryQuestions: z.array(memoryQuestionSchema).max(MAX_MEMORY_QUESTIONS).optional(),
 })
 
 // ── Checkpoint schemas ─────────────────────────────────────────────────────────
@@ -125,3 +137,13 @@ export const verifyFinalDestinationSchema = z.object({
 export const proposalResponseSchema = z.object({
   response: z.enum(['yes', 'no']),
 })
+
+export const answerQuestionSchema = z
+  .object({
+    index: z.number().int().min(0).max(MAX_MEMORY_QUESTIONS - 1),
+    feeling: z.enum(FEELINGS).nullable().optional(),
+    answer: z.string().trim().max(2000).default(''),
+  })
+  .refine((d) => Boolean(d.feeling) || d.answer.length > 0, {
+    message: 'Pick a feeling or write a few words.',
+  })

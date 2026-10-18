@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 
 interface Props {
   token: string
+  mode: 'route' | 'questions'
   title: string
   welcomeContent: {
     greeting: string
@@ -22,7 +23,7 @@ interface Props {
   }
 }
 
-export default function InvitationLanding({ token, title, welcomeContent, theme }: Props) {
+export default function InvitationLanding({ token, mode, title, welcomeContent, theme }: Props) {
   const router = useRouter()
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState('')
@@ -50,7 +51,8 @@ export default function InvitationLanding({ token, title, welcomeContent, theme 
         setStarting(false)
         return
       }
-      router.push(`/journey/${token}/start`)
+      // Route journeys ask for location first; question journeys go straight to the questions
+      router.push(`/journey/${token}/${mode === 'questions' ? 'questions' : 'start'}`)
     } catch {
       setError('Network error. Please check your connection.')
       setStarting(false)

@@ -38,6 +38,7 @@ export default async function JourneyInvitationPage({ params }: Props) {
   return (
     <InvitationLanding
       token={token}
+      mode={journey.mode === 'questions' ? 'questions' : 'route'}
       title={journey.title}
       welcomeContent={{
         greeting: journey.welcomeContent.greeting,

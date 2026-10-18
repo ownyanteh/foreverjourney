@@ -5,6 +5,7 @@ export type EventType =
   | 'checkpoint_unlocked'
   | 'checkpoint_skipped'
   | 'final_destination_unlocked'
+  | 'questions_completed'
   | 'proposal_response_submitted'
   | 'journey_completed'
   | 'memory_shared'
@@ -30,6 +31,7 @@ const JourneyEventSchema = new Schema<IJourneyEvent>(
         'checkpoint_unlocked',
         'checkpoint_skipped',
         'final_destination_unlocked',
+        'questions_completed',
         'proposal_response_submitted',
         'journey_completed',
         'memory_shared',

@@ -67,6 +67,16 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       })
     }
 
+    if (parsed.data.mode !== undefined) {
+      // Switching type mid-journey would strand the recipient
+      const current = (await Journey.findOne({ _id: id, adminId: session.adminId }).select('status').lean()) as { status: string } | null
+      if (current?.status === 'active') {
+        return NextResponse.json({ error: 'Deactivate the journey before changing its type.' }, { status: 400 })
+      }
+      updateFields.mode = parsed.data.mode
+    }
+    if (parsed.data.memoryQuestions !== undefined) updateFields.memoryQuestions = parsed.data.memoryQuestions
+
     const journey = await Journey.findOneAndUpdate(
       { _id: id, adminId: session.adminId },
       { $set: updateFields },

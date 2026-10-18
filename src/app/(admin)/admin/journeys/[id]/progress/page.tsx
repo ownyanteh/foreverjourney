@@ -13,8 +13,9 @@ import { Memory } from '@/lib/db/models/Memory'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Heart, CheckCircle2, Clock, Camera, Download } from 'lucide-react'
+import { ArrowLeft, Heart, CheckCircle2, Clock, Camera, Download, MessageCircleHeart } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
+import { feelingDisplay } from '@/lib/feelings'
 
 export const metadata: Metadata = { title: 'Journey Progress' }
 
@@ -36,6 +37,16 @@ export default async function JourneyProgressPage({ params }: Props) {
   const checkpoints = (await Checkpoint.find({ journeyId: id, isActive: true }).sort({ sequence: 1 }).lean()) as any[]
   const memories = (await Memory.find({ journeyId: id }).sort({ createdAt: -1 }).lean()) as any[]
 
+  // Most recent session in which she answered memory questions
+  const answeredSession = sessions.find((s) => (s.questionAnswers ?? []).length > 0)
+  const answers = (answeredSession?.questionAnswers ?? []) as {
+    questionIndex: number
+    prompt: string
+    feeling: string | null
+    answer: string
+    answeredAt: Date
+  }[]
+
   // Map checkpoint IDs to names for display
   const checkpointMap = Object.fromEntries(checkpoints.map((c) => [c._id.toString(), c.title]))
 
@@ -44,6 +55,7 @@ export default async function JourneyProgressPage({ params }: Props) {
     checkpoint_unlocked: '📍 Checkpoint unlocked',
     checkpoint_skipped: '⏭️ Checkpoint skipped',
     final_destination_unlocked: '✨ Final destination reached',
+    questions_completed: '💬 Memory questions answered',
     proposal_response_submitted: '💍 Response submitted',
     journey_completed: '🎉 Journey completed',
     memory_shared: '📸 Memory shared',
@@ -86,6 +98,37 @@ export default async function JourneyProgressPage({ params }: Props) {
           <CardContent className="p-5 flex items-center gap-3 text-charcoal/50">
             <Clock className="h-5 w-5" />
             <p className="text-sm">Waiting for the proposal response…</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Her answers to the memory questions */}
+      {answers.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircleHeart className="h-5 w-5 text-burgundy" />
+              Her answers ({answers.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ol className="divide-y divide-blush-100">
+              {answers.map((a) => (
+                <li key={a.questionIndex} className="px-6 py-4 space-y-1.5">
+                  <p className="text-xs font-medium text-charcoal/50">Moment {a.questionIndex + 1}</p>
+                  <p className="font-serif font-semibold text-charcoal">{a.prompt}</p>
+                  {feelingDisplay(a.feeling) && (
+                    <span className="inline-block text-sm bg-blush-100 text-charcoal rounded-full px-3 py-0.5">
+                      {feelingDisplay(a.feeling)}
+                    </span>
+                  )}
+                  {a.answer && (
+                    <p className="text-sm text-charcoal/80 font-serif italic whitespace-pre-wrap">&ldquo;{a.answer}&rdquo;</p>
+                  )}
+                  <p className="text-xs text-charcoal/40">{format(new Date(a.answeredAt), 'PPP p')}</p>
+                </li>
+              ))}
+            </ol>
           </CardContent>
         </Card>
       )}
@@ -142,7 +185,9 @@ export default async function JourneyProgressPage({ params }: Props) {
                       {s.status}
                     </Badge>
                     <span className="ml-3 text-sm text-charcoal/60">
-                      {s.completedCheckpointIds.length}/{checkpoints.length} checkpoints
+                      {journey.mode === 'questions'
+                        ? `${(s.questionAnswers ?? []).length}/${(journey.memoryQuestions ?? []).length} questions answered`
+                        : `${s.completedCheckpointIds.length}/${checkpoints.length} checkpoints`}
                     </span>
                   </div>
                   <span className="text-xs text-charcoal/40">

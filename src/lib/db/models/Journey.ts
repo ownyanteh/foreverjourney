@@ -2,6 +2,14 @@ import mongoose, { Document, Schema, Types } from 'mongoose'
 
 export type JourneyStatus = 'draft' | 'active' | 'completed' | 'deactivated'
 
+/** 'route': GPS checkpoints + final destination. 'questions': memory questions, then the proposal. */
+export type JourneyMode = 'route' | 'questions'
+
+export interface IMemoryQuestion {
+  prompt: string
+  hint: string
+}
+
 export interface IWelcomeContent {
   greeting: string
   introduction: string
@@ -43,6 +51,8 @@ export interface IJourney extends Document {
   adminId: Types.ObjectId
   title: string
   status: JourneyStatus
+  mode: JourneyMode
+  memoryQuestions: IMemoryQuestion[]
   welcomeContent: IWelcomeContent
   theme: ITheme
   proposalContent: IProposalContent
@@ -125,6 +135,14 @@ const FinalDestinationSchema = new Schema<IFinalDestination>(
   { _id: false }
 )
 
+const MemoryQuestionSchema = new Schema<IMemoryQuestion>(
+  {
+    prompt: { type: String, required: true, trim: true, maxlength: 300 },
+    hint: { type: String, default: '', trim: true, maxlength: 300 },
+  },
+  { _id: false }
+)
+
 const JourneySchema = new Schema<IJourney>(
   {
     adminId: { type: Schema.Types.ObjectId, ref: 'AdminUser', required: true, index: true },
@@ -134,6 +152,8 @@ const JourneySchema = new Schema<IJourney>(
       enum: ['draft', 'active', 'completed', 'deactivated'],
       default: 'draft',
     },
+    mode: { type: String, enum: ['route', 'questions'], default: 'route' },
+    memoryQuestions: { type: [MemoryQuestionSchema], default: [] },
     welcomeContent: { type: WelcomeContentSchema, default: () => ({}) },
     theme: { type: ThemeSchema, default: () => ({}) },
     proposalContent: { type: ProposalContentSchema, default: () => ({}) },
