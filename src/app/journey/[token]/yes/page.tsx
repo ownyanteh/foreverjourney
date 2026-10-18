@@ -45,7 +45,7 @@ export default function YesPage() {
   }, [prefersReducedMotion])
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center relative overflow-hidden py-12 bg-gradient-to-br from-burgundy via-[#a03050] to-[#7A2038]">
+    <div className="min-h-dvh flex flex-col items-center justify-center relative overflow-hidden px-5 pt-24 pb-12 font-sans text-white bg-[linear-gradient(160deg,#7A2038_0%,#A03050_45%,#7A2038_100%)]">
       {/* Floating hearts */}
       {hearts.map((h) => (
         <span
@@ -54,13 +54,15 @@ export default function YesPage() {
           style={{
             left: `${h.left}%`,
             top: '-40px',
-            fontSize: `${h.size}rem`,
             animationDuration: `${5 + h.delay}s`,
             animationDelay: `${h.delay}s`,
           }}
           aria-hidden="true"
         >
-          ❤️
+          <Heart
+            className={h.id % 3 === 0 ? 'text-white fill-white opacity-35' : h.id % 3 === 1 ? 'text-burgundy-100 fill-burgundy-100 opacity-40' : 'text-blush-300 fill-blush-300 opacity-35'}
+            style={{ width: `${h.size}rem`, height: `${h.size}rem` }}
+          />
         </span>
       ))}
 
@@ -68,22 +70,22 @@ export default function YesPage() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: prefersReducedMotion ? 0 : 0.8, type: 'spring' }}
-        className="relative z-10 max-w-sm w-full mx-4 text-center px-2"
+        className="relative z-10 max-w-sm w-full text-center flex flex-col items-center"
       >
         {/* Animated heart */}
         <motion.div
           animate={prefersReducedMotion ? {} : { scale: [1, 1.15, 1, 1.1, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-8"
+          className="w-[104px] h-[104px] rounded-full bg-white/20 flex items-center justify-center mx-auto mb-[34px] shadow-[0_0_0_14px_rgba(255,255,255,0.07)]"
         >
-          <Heart className="h-14 w-14 text-white fill-white" />
+          <Heart className="h-14 w-14 text-white fill-white" strokeWidth={1.5} />
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: prefersReducedMotion ? 0 : 0.5 }}
-          className="font-serif text-4xl font-bold text-white mb-4"
+          className="font-serif text-[40px] leading-tight font-bold tracking-[0.01em] text-white mb-4"
           aria-live="polite"
         >
           YOU SAID YES!
@@ -93,7 +95,7 @@ export default function YesPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: prefersReducedMotion ? 0 : 1 }}
-          className="font-serif text-lg text-white/80 leading-relaxed italic"
+          className="font-serif text-lg text-white/[0.84] leading-[1.65] italic max-w-[330px]"
         >
           {data?.yesMessage ?? 'Today, our next adventure begins. I can\'t wait to build a lifetime of beautiful memories with you.'}
         </motion.p>
@@ -102,7 +104,7 @@ export default function YesPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: prefersReducedMotion ? 0 : 1.5 }}
-          className="mt-10 text-4xl"
+          className="mt-[26px] text-[40px] leading-none"
           aria-hidden="true"
         >
           💍
@@ -113,7 +115,7 @@ export default function YesPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: prefersReducedMotion ? 0 : 2.2 }}
-            className="mt-10"
+            className="mt-11 w-full"
           >
             <MemoryCapture token={token} />
           </motion.div>

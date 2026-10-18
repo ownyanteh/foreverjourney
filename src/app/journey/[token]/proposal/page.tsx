@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { Heart, Music, VolumeX } from 'lucide-react'
+import { Heart, Music, VolumeX, Sparkle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface ProposalContent {
@@ -19,6 +19,15 @@ interface ProposalContent {
 
 type Stage = 'loading' | 'message1' | 'message2' | 'question' | 'responded'
 
+// Decorative falling petals (hearts + sparkles in brand tones)
+const PETAL_VARIANTS = [
+  { Icon: Heart, className: 'h-4 w-4 text-blush-300 fill-blush-300 opacity-[0.55]' },
+  { Icon: Sparkle, className: 'h-3 w-3 text-gold fill-gold opacity-60' },
+  { Icon: Heart, className: 'h-5 w-5 text-burgundy-300 fill-burgundy-300 opacity-[0.45]' },
+  { Icon: Heart, className: 'h-3.5 w-3.5 text-blush fill-blush opacity-40' },
+  { Icon: Sparkle, className: 'h-2.5 w-2.5 text-gold fill-gold opacity-[0.55]' },
+]
+
 export default function ProposalPage() {
   const params = useParams()
   const router = useRouter()
@@ -29,7 +38,7 @@ export default function ProposalPage() {
   const [stage, setStage] = useState<Stage>('loading')
   const [submitting, setSubmitting] = useState(false)
   const [musicPlaying, setMusicPlaying] = useState(false)
-  const [petals, setPetals] = useState<{ id: number; left: number; delay: number; emoji: string }[]>([])
+  const [petals, setPetals] = useState<{ id: number; left: number; delay: number; variant: number }[]>([])
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   // Check if already responded (page refresh)
@@ -65,12 +74,11 @@ export default function ProposalPage() {
   useEffect(() => {
     if (stage !== 'question') return
     if (prefersReducedMotion) return
-    const emojis = ['🌸', '❤️', '✨', '💕', '🌹']
     const newPetals = Array.from({ length: 12 }, (_, i) => ({
       id: i,
       left: Math.random() * 100,
       delay: Math.random() * 3,
-      emoji: emojis[i % emojis.length],
+      variant: i % PETAL_VARIANTS.length,
     }))
     setPetals(newPetals)
   }, [stage, prefersReducedMotion])
@@ -104,7 +112,7 @@ export default function ProposalPage() {
         backgroundPosition: 'center',
       }
     : {
-        background: 'linear-gradient(135deg, #242126 0%, #4a1322 40%, #7A2038 100%)',
+        background: 'radial-gradient(110% 70% at 50% 30%, #62192D 0%, #320C17 60%, #1A060C 100%)',
       }
 
   const transitionConfig = prefersReducedMotion
@@ -112,7 +120,7 @@ export default function ProposalPage() {
     : { duration: 0.8, ease: 'easeOut' }
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center relative overflow-hidden" style={bgStyle}>
+    <div className="min-h-dvh flex flex-col items-center justify-center relative overflow-hidden px-7 py-16 font-sans text-white" style={bgStyle}>
       {/* Music */}
       {content?.musicUrl && (
         <audio ref={audioRef} src={content.musicUrl} loop preload="none" />
@@ -120,7 +128,7 @@ export default function ProposalPage() {
       {content?.musicUrl && (
         <button
           onClick={toggleMusic}
-          className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 hover:bg-white/20 transition-colors z-20"
+          className="absolute top-5 right-5 h-11 w-11 flex items-center justify-center rounded-full bg-white/[0.12] backdrop-blur-sm border border-white/25 text-white/90 hover:bg-white/20 transition-colors z-20"
           aria-label={musicPlaying ? 'Pause music' : 'Play music'}
         >
           {musicPlaying ? <VolumeX className="h-5 w-5" /> : <Music className="h-5 w-5" />}
@@ -128,23 +136,26 @@ export default function ProposalPage() {
       )}
 
       {/* Petals */}
-      {petals.map((p) => (
-        <span
-          key={p.id}
-          className="fixed text-2xl pointer-events-none select-none petal"
-          style={{
-            left: `${p.left}%`,
-            top: '-40px',
-            animationDuration: `${4 + p.delay}s`,
-            animationDelay: `${p.delay}s`,
-          }}
-          aria-hidden="true"
-        >
-          {p.emoji}
-        </span>
-      ))}
+      {petals.map((p) => {
+        const { Icon, className } = PETAL_VARIANTS[p.variant]
+        return (
+          <span
+            key={p.id}
+            className="fixed pointer-events-none select-none petal"
+            style={{
+              left: `${p.left}%`,
+              top: '-40px',
+              animationDuration: `${4 + p.delay}s`,
+              animationDelay: `${p.delay}s`,
+            }}
+            aria-hidden="true"
+          >
+            <Icon className={className} />
+          </span>
+        )
+      })}
 
-      <div className="relative z-10 max-w-sm w-full mx-4 text-center px-2 space-y-8">
+      <div className="relative z-10 max-w-sm w-full text-center flex flex-col items-center">
         {/* Loading */}
         {stage === 'loading' && (
           <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 2 }}>
@@ -159,7 +170,7 @@ export default function ProposalPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={transitionConfig}
-              className="text-white/70 text-sm font-medium tracking-widest uppercase"
+              className="font-serif text-[22px] font-medium text-white/[0.88] mb-[26px]"
             >
               {content?.title ?? 'You made it, my love.'}
             </motion.p>
@@ -173,12 +184,13 @@ export default function ProposalPage() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={transitionConfig}
+              className="mb-[26px]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={content.couplePhotoUrl}
                 alt="Us"
-                className="w-48 h-48 rounded-full object-cover mx-auto border-4 border-gold/50 shadow-2xl"
+                className="w-[124px] h-[124px] rounded-full object-cover mx-auto border-4 border-white/85 shadow-[0_0_0_10px_rgba(255,255,255,0.08)]"
               />
             </motion.div>
           )}
@@ -191,7 +203,7 @@ export default function ProposalPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ ...transitionConfig, delay: prefersReducedMotion ? 0 : 0.3 }}
-              className="font-serif text-xl text-white leading-relaxed italic"
+              className="font-serif text-[17px] text-white/80 leading-[1.65] italic mb-[34px]"
             >
               {content?.mainMessage ?? ''}
             </motion.p>
@@ -205,17 +217,18 @@ export default function ProposalPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ ...transitionConfig, delay: prefersReducedMotion ? 0 : 0.4 }}
-              className="space-y-8"
+              className="w-full flex flex-col items-center"
             >
-              <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white leading-tight">
+              <h1 className="font-serif text-[42px] font-bold text-white leading-[1.1] mb-9">
                 {content?.finalQuestion ?? 'Will you marry me?'}
               </h1>
 
               {/* Response buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center" role="group" aria-label="Proposal response">
+              <div className="w-full flex flex-col items-center gap-4" role="group" aria-label="Proposal response">
                 <Button
                   variant="yes-button"
                   size="xl"
+                  className="w-full h-16 py-0 px-6 rounded-[20px] border-0 bg-[linear-gradient(180deg,#E4C589_0%,#D8B46A_100%)] text-burgundy-800 text-xl font-bold shadow-[0_0_0_6px_rgba(216,180,106,0.18),0_20px_44px_rgba(216,180,106,0.35)] hover:shadow-[0_0_0_8px_rgba(216,180,106,0.22),0_24px_50px_rgba(216,180,106,0.45)] hover:scale-[1.02] active:scale-[0.98] focus-visible:ring-offset-burgundy-800"
                   onClick={() => handleResponse('yes')}
                   disabled={submitting}
                   aria-label="Yes, I will marry you"
@@ -225,6 +238,7 @@ export default function ProposalPage() {
                 <Button
                   variant="no-button"
                   size="lg"
+                  className="h-11 px-6 bg-transparent backdrop-blur-none border-0 rounded-xl text-white/60 text-[15px] font-medium hover:bg-white/5 hover:text-white/80 focus-visible:ring-offset-burgundy-800"
                   onClick={() => handleResponse('no')}
                   disabled={submitting}
                   aria-label="No"

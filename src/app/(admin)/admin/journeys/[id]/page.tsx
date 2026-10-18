@@ -18,6 +18,18 @@ import {
 import JourneyStatusControls from '@/components/admin/JourneyStatusControls'
 import JourneyModeSelector from '@/components/admin/JourneyModeSelector'
 import { formatDistanceToNow } from 'date-fns'
+import { cn } from '@/lib/utils'
+import {
+  adminCard,
+  adminCardHeader,
+  adminCardTitle,
+  adminBadge,
+  adminBackBtn,
+  adminPageTitle,
+  statusBadgeClass,
+  yesBadgeClass,
+  noBadgeClass,
+} from '@/components/admin/adminStyles'
 
 export const metadata: Metadata = { title: 'Journey Overview' }
 
@@ -44,13 +56,13 @@ export default async function JourneyOverviewPage({ params }: Params) {
   const questionCount = (journey.memoryQuestions ?? []).length
 
   const navItems = [
-    { href: `/admin/journeys/${journeyId}/edit`, icon: <Pencil className="h-4 w-4" />, label: 'Edit Welcome' },
+    { href: `/admin/journeys/${journeyId}/edit`, icon: <Pencil className="h-[18px] w-[18px]" />, label: 'Edit Welcome' },
     isQuestions
-      ? { href: `/admin/journeys/${journeyId}/questions`, icon: <MessageCircleHeart className="h-4 w-4" />, label: 'Questions' }
-      : { href: `/admin/journeys/${journeyId}/checkpoints`, icon: <Map className="h-4 w-4" />, label: 'Checkpoints' },
-    { href: `/admin/journeys/${journeyId}/proposal`, icon: <Heart className="h-4 w-4" />, label: 'Proposal' },
-    { href: `/admin/journeys/${journeyId}/invitation`, icon: <LinkIcon className="h-4 w-4" />, label: 'Invitation' },
-    { href: `/admin/journeys/${journeyId}/progress`, icon: <Activity className="h-4 w-4" />, label: 'Progress' },
+      ? { href: `/admin/journeys/${journeyId}/questions`, icon: <MessageCircleHeart className="h-[18px] w-[18px]" />, label: 'Questions' }
+      : { href: `/admin/journeys/${journeyId}/checkpoints`, icon: <Map className="h-[18px] w-[18px]" />, label: 'Checkpoints' },
+    { href: `/admin/journeys/${journeyId}/proposal`, icon: <Heart className="h-[18px] w-[18px]" />, label: 'Proposal' },
+    { href: `/admin/journeys/${journeyId}/invitation`, icon: <LinkIcon className="h-[18px] w-[18px]" />, label: 'Invitation' },
+    { href: `/admin/journeys/${journeyId}/progress`, icon: <Activity className="h-[18px] w-[18px]" />, label: 'Progress' },
   ]
 
   const eventLabels: Record<string, string> = {
@@ -66,22 +78,25 @@ export default async function JourneyOverviewPage({ params }: Params) {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start gap-4">
-        <Button asChild variant="ghost" size="icon-sm">
-          <Link href="/admin/journeys"><ArrowLeft className="h-4 w-4" /></Link>
+    <div className="flex flex-col gap-6">
+      <div className="flex items-start gap-3">
+        <Button asChild variant="ghost" size="icon-sm" className={adminBackBtn}>
+          <Link href="/admin/journeys" aria-label="Back to journeys"><ArrowLeft className="h-[18px] w-[18px]" /></Link>
         </Button>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
-            <h1 className="font-serif text-2xl font-semibold text-charcoal">{journey.title}</h1>
-            <Badge variant={statusVariant}>{journey.status}</Badge>
+          <div className="flex items-center gap-2.5 flex-wrap mb-1">
+            <h1 className={adminPageTitle}>{journey.title}</h1>
+            <Badge variant={statusVariant} className={cn(adminBadge, 'h-6', statusBadgeClass[statusVariant])}>{journey.status}</Badge>
             {response && (
-              <Badge variant={response.response === 'yes' ? 'success' : 'secondary'}>
+              <Badge
+                variant={response.response === 'yes' ? 'success' : 'secondary'}
+                className={cn(adminBadge, 'h-6', response.response === 'yes' ? yesBadgeClass : noBadgeClass)}
+              >
                 {response.response === 'yes' ? '💍 She said YES!' : 'Response: No'}
               </Badge>
             )}
           </div>
-          <p className="text-sm text-charcoal/50">
+          <p className="text-[13px] text-charcoal/50">
             Created {formatDistanceToNow(new Date(journey.createdAt), { addSuffix: true })}
           </p>
         </div>
@@ -99,35 +114,37 @@ export default async function JourneyOverviewPage({ params }: Params) {
         locked={journey.status === 'active'}
       />
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-3">
         {navItems.map((item) => (
-          <Button key={item.href} asChild variant="secondary" className="h-auto flex-col gap-2 py-4">
-            <Link href={item.href}>
-              {item.icon}
-              <span className="text-xs font-medium">{item.label}</span>
-            </Link>
-          </Button>
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex flex-col items-center justify-center gap-2 px-2 py-[18px] rounded-2xl bg-white border border-blush-200 text-burgundy text-[13px] font-medium transition-colors hover:bg-blush-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2"
+          >
+            {item.icon}
+            <span className="text-charcoal">{item.label}</span>
+          </Link>
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Card className={adminCard}>
           <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className="h-6 w-6 text-burgundy" />
+            <div className="flex items-center gap-3.5">
+              <CheckCircle2 className="h-6 w-6 text-burgundy flex-shrink-0" />
               <div>
-                <p className="text-xl font-semibold text-charcoal">{isQuestions ? questionCount : checkpoints.length}</p>
+                <p className="text-[22px] leading-tight font-semibold text-charcoal">{isQuestions ? questionCount : checkpoints.length}</p>
                 <p className="text-xs text-charcoal/60">{isQuestions ? 'Memory questions' : 'Active checkpoints'}</p>
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className={adminCard}>
           <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <Activity className="h-6 w-6 text-burgundy" />
+            <div className="flex items-center gap-3.5">
+              <Activity className="h-6 w-6 text-burgundy flex-shrink-0" />
               <div>
-                <p className="text-xl font-semibold text-charcoal">{events.length}</p>
+                <p className="text-[22px] leading-tight font-semibold text-charcoal">{events.length}</p>
                 <p className="text-xs text-charcoal/60">Journey events</p>
               </div>
             </div>
@@ -136,16 +153,16 @@ export default async function JourneyOverviewPage({ params }: Params) {
       </div>
 
       {events.length > 0 && (
-        <Card>
-          <CardHeader><CardTitle>Recent Events</CardTitle></CardHeader>
+        <Card className={adminCard}>
+          <CardHeader className={adminCardHeader}><CardTitle className={adminCardTitle}>Recent Events</CardTitle></CardHeader>
           <CardContent className="p-0">
             <ul className="divide-y divide-blush-100">
               {events.map((event: any) => (
-                <li key={event._id.toString()} className="flex items-center justify-between px-6 py-3">
+                <li key={event._id.toString()} className="flex items-center justify-between gap-3 px-6 py-3">
                   <span className="text-sm text-charcoal">
                     {eventLabels[event.eventType] ?? event.eventType}
                   </span>
-                  <span className="text-xs text-charcoal/40">
+                  <span className="text-xs text-charcoal/45 flex-shrink-0">
                     {formatDistanceToNow(new Date(event.timestamp), { addSuffix: true })}
                   </span>
                 </li>

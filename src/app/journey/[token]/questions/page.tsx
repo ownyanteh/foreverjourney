@@ -103,7 +103,7 @@ export default function MemoryQuestionsPage() {
   const isLast = current === questions.length - 1
 
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-5 py-10 bg-gradient-to-br from-burgundy via-[#5e1a2d] to-charcoal">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-5 py-10 font-sans text-white bg-[linear-gradient(150deg,#7A2038_0%,#5E1A2D_45%,#242126_100%)]">
       <AnimatePresence mode="wait">
         {stage === 'loading' && (
           <motion.div key="loading" exit={{ opacity: 0 }} className="text-white/60 text-sm">
@@ -124,22 +124,27 @@ export default function MemoryQuestionsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="max-w-sm w-full text-center"
+            className="max-w-sm w-full text-center px-2.5 flex flex-col items-center"
           >
-            <div className="w-20 h-20 rounded-full bg-white/15 border border-white/30 flex items-center justify-center mx-auto mb-8">
-              <Heart className="h-10 w-10 text-white fill-white" />
+            <div className="w-[84px] h-[84px] rounded-full bg-white/[0.14] border border-white/30 flex items-center justify-center mx-auto mb-[34px]">
+              <Heart className="h-10 w-10 text-white fill-white" strokeWidth={1.5} />
             </div>
-            <h1 className="font-serif text-3xl font-semibold text-white mb-4 leading-tight">
+            <h1 className="font-serif text-[34px] font-semibold text-white mb-[18px] leading-[1.15]">
               A few of our moments
             </h1>
-            <p className="text-white/75 leading-relaxed mb-10">
+            <p className="text-white/[0.76] text-base leading-[1.7] mb-11">
               I want to remember some moments we&apos;ve shared, through your eyes.
               There are {questions.length} of them. Tell me how each one made you feel.
             </p>
+            <div className="flex gap-2 mb-11" aria-hidden="true">
+              {questions.map((_, i) => (
+                <span key={i} className="w-3 h-1.5 rounded-full bg-white/30" />
+              ))}
+            </div>
             <Button
               onClick={() => setStage('asking')}
               size="xl"
-              className="bg-white text-burgundy hover:bg-cream font-semibold rounded-2xl border-0 w-full sm:w-auto px-10"
+              className="w-full h-[60px] gap-2 px-6 rounded-[18px] border-0 bg-white text-burgundy text-[17px] font-semibold shadow-[0_18px_40px_rgba(26,6,12,0.35)] hover:bg-cream focus-visible:ring-offset-burgundy"
             >
               Let&apos;s begin
               <ChevronRight className="h-5 w-5" />
@@ -157,7 +162,7 @@ export default function MemoryQuestionsPage() {
             className="max-w-md w-full"
           >
             {/* Progress */}
-            <div className="flex items-center justify-center gap-2 mb-6" aria-hidden="true">
+            <div className="flex items-center justify-center gap-2 mb-5" aria-hidden="true">
               {questions.map((_, i) => (
                 <span
                   key={i}
@@ -167,20 +172,20 @@ export default function MemoryQuestionsPage() {
                 />
               ))}
             </div>
-            <p className="text-white/60 text-xs font-medium tracking-widest uppercase text-center mb-3">
+            <p className="text-white/[0.62] text-xs font-semibold tracking-[0.22em] uppercase text-center mb-2.5">
               Moment {current + 1} of {questions.length}
             </p>
 
-            <h2 className="font-serif text-2xl sm:text-3xl font-semibold text-white text-center leading-snug mb-3">
+            <h2 className="font-serif text-[28px] font-semibold text-white text-center leading-[1.2] mb-2">
               {question.prompt}
             </h2>
             {question.hint && (
-              <p className="text-white/65 text-center italic mb-6">{question.hint}</p>
+              <p className="text-white/[0.68] text-[15px] leading-[1.5] text-center italic">{question.hint}</p>
             )}
 
-            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-5 mt-6 space-y-4">
+            <div className="bg-white/10 backdrop-blur-[8px] border border-white/20 rounded-[26px] p-[18px] mt-[22px] flex flex-col gap-4">
               <fieldset>
-                <legend className="text-white/80 text-sm font-medium mb-3">How did it make you feel?</legend>
+                <legend className="text-white/85 text-sm font-medium mb-3">How did it make you feel?</legend>
                 <div className="grid grid-cols-3 gap-2">
                   {FEELING_OPTIONS.map((f) => {
                     const selected = draft.feeling === f.value
@@ -190,13 +195,13 @@ export default function MemoryQuestionsPage() {
                         type="button"
                         onClick={() => updateDraft({ feeling: selected ? null : f.value })}
                         aria-pressed={selected}
-                        className={`flex flex-col items-center gap-1 rounded-2xl py-3 text-sm font-medium transition-all active:scale-95 ${
+                        className={`flex flex-col items-center gap-1 rounded-[18px] py-3 text-[13px] border transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300 ${
                           selected
-                            ? 'bg-white text-burgundy shadow-lg'
-                            : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
+                            ? 'bg-white text-burgundy border-white font-semibold shadow-[0_10px_24px_rgba(0,0,0,0.25)]'
+                            : 'bg-white/10 text-white border-white/20 font-medium hover:bg-white/20'
                         }`}
                       >
-                        <span className="text-2xl" aria-hidden="true">{f.emoji}</span>
+                        <span className="text-[26px] leading-none" aria-hidden="true">{f.emoji}</span>
                         {f.label}
                       </button>
                     )
@@ -205,8 +210,8 @@ export default function MemoryQuestionsPage() {
               </fieldset>
 
               <div>
-                <label htmlFor="answer" className="text-white/80 text-sm font-medium block mb-2">
-                  Tell me more <span className="text-white/50 font-normal">(optional)</span>
+                <label htmlFor="answer" className="text-white/85 text-sm font-medium block mb-2">
+                  Tell me more <span className="text-white/[0.55] font-normal">(optional)</span>
                 </label>
                 <textarea
                   id="answer"
@@ -214,15 +219,15 @@ export default function MemoryQuestionsPage() {
                   value={draft.answer}
                   onChange={(e) => updateDraft({ answer: e.target.value.slice(0, 2000) })}
                   placeholder="What do you remember most about it…"
-                  className="w-full rounded-2xl bg-white/90 text-charcoal placeholder:text-charcoal/40 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-white/60 resize-none"
+                  className="w-full rounded-[18px] border-0 bg-white/[0.92] text-charcoal placeholder:text-charcoal/45 px-3.5 py-3 text-[15px] leading-[1.5] focus:outline-none focus:ring-2 focus:ring-white/60 resize-none"
                 />
               </div>
 
               {error && (
-                <p className="text-sm text-white bg-red-900/40 rounded-xl px-3 py-2" role="alert">{error}</p>
+                <p className="text-sm text-white bg-red-950/40 border border-red-300/30 rounded-[14px] px-3 py-2" role="alert">{error}</p>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex gap-2.5">
                 {current > 0 && (
                   <Button
                     type="button"
@@ -230,7 +235,7 @@ export default function MemoryQuestionsPage() {
                     variant="outline"
                     size="lg"
                     disabled={saving}
-                    className="bg-transparent text-white border-white/40 hover:bg-white/10 rounded-2xl"
+                    className="h-[54px] w-[54px] flex-shrink-0 px-0 bg-transparent text-white border-white/40 hover:bg-white/10 rounded-2xl"
                     aria-label="Previous moment"
                   >
                     <ChevronLeft className="h-5 w-5" />
@@ -241,7 +246,7 @@ export default function MemoryQuestionsPage() {
                   onClick={submitCurrent}
                   loading={saving}
                   size="lg"
-                  className="flex-1 bg-white text-burgundy hover:bg-cream font-semibold rounded-2xl border-0"
+                  className="flex-1 h-[54px] gap-1.5 bg-white text-burgundy hover:bg-cream text-base font-semibold rounded-2xl border-0"
                 >
                   {isLast ? 'Finish' : 'Next'}
                   {!saving && <ChevronRight className="h-5 w-5" />}
@@ -257,17 +262,28 @@ export default function MemoryQuestionsPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="max-w-sm text-center"
+            className="max-w-sm text-center px-3.5 flex flex-col items-center"
           >
             <motion.div
               animate={prefersReducedMotion ? {} : { scale: [1, 1.15, 1] }}
               transition={{ duration: 1.4, repeat: Infinity }}
-              className="w-20 h-20 rounded-full bg-white/15 flex items-center justify-center mx-auto mb-8"
+              className="w-24 h-24 rounded-full bg-white/15 flex items-center justify-center mx-auto mb-9 shadow-[0_0_0_14px_rgba(255,255,255,0.05),0_0_0_30px_rgba(255,255,255,0.025)]"
             >
-              <Heart className="h-10 w-10 text-white fill-white" />
+              <Heart className="h-11 w-11 text-white fill-white" strokeWidth={1.5} />
             </motion.div>
-            <p className="font-serif text-2xl text-white mb-3">Thank you, my love.</p>
-            <p className="text-white/70">Every one of those moments led here. There&apos;s just one more question…</p>
+            <p className="font-serif text-[28px] font-medium text-white mb-3.5">Thank you, my love.</p>
+            <p className="text-white/[0.72] text-base leading-[1.7] mb-12">Every one of those moments led here. There&apos;s just one more question…</p>
+            <div className="flex gap-2" aria-hidden="true">
+              {[0.9, 0.55, 0.25].map((o, i) => (
+                <motion.span
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-white"
+                  style={{ opacity: o }}
+                  animate={prefersReducedMotion ? {} : { opacity: [o, 1, o] }}
+                  transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                />
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

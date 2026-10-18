@@ -1,7 +1,7 @@
 'use client'
 
-import { useRef, useState } from 'react'
-import { MapPin } from 'lucide-react'
+import { useId, useRef, useState } from 'react'
+import { MapPin, Check } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { isGoogleMapsShortLink, parseGoogleMapsCoordinates } from '@/lib/geo/google-maps'
@@ -18,6 +18,7 @@ export default function GoogleMapsPasteInput({ onCoordinates }: Props) {
   const [status, setStatus] = useState<{ kind: 'idle' | 'loading' | 'ok' | 'error'; message?: string }>({ kind: 'idle' })
   // Paste, blur and Enter can all fire for the same text; resolve it once
   const lastResolved = useRef('')
+  const inputId = useId()
 
   async function resolve(text: string) {
     const trimmed = text.trim()
@@ -64,12 +65,14 @@ export default function GoogleMapsPasteInput({ onCoordinates }: Props) {
   }
 
   return (
-    <div className="space-y-1.5">
-      <Label className="flex items-center gap-1.5">
-        <MapPin className="h-3.5 w-3.5 text-charcoal/50" />
+    <div className="flex flex-col gap-1.5 rounded-2xl bg-blush-100 p-3.5">
+      <Label htmlFor={inputId} className="flex items-center gap-1.5 text-sm font-medium text-charcoal">
+        <MapPin className="h-3.5 w-3.5 text-charcoal/55" />
         Paste from Google Maps
       </Label>
       <Input
+        id={inputId}
+        className="h-11 rounded-xl border-blush-300 bg-white px-3.5 text-[15px] text-charcoal placeholder:text-charcoal/40"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onPaste={(e) => {
@@ -92,11 +95,12 @@ export default function GoogleMapsPasteInput({ onCoordinates }: Props) {
             status.kind === 'error'
               ? 'text-xs text-red-600'
               : status.kind === 'ok'
-                ? 'text-xs text-green-700'
+                ? 'flex items-center gap-1.5 text-xs text-emerald-700'
                 : 'text-xs text-charcoal/50'
           }
           role={status.kind === 'error' ? 'alert' : 'status'}
         >
+          {status.kind === 'ok' && <Check className="h-[13px] w-[13px] flex-shrink-0" strokeWidth={2.5} aria-hidden="true" />}
           {status.message}
         </p>
       )}

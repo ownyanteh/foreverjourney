@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MapPin, Navigation2, ChevronDown, ExternalLink,
-  CheckCircle2, AlertCircle, Compass
+  CheckCircle2, AlertCircle, Compass, Sparkle, Star, Play, Pause
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useGeolocation } from '@/hooks/useGeolocation'
@@ -222,7 +222,7 @@ export default function NavigatePage() {
     : 0
 
   return (
-    <div className="min-h-dvh flex flex-col bg-charcoal">
+    <div className="min-h-dvh flex flex-col bg-charcoal font-sans text-charcoal">
       {/* Map */}
       <div className="flex-1 relative" style={{ minHeight: '60dvh' }}>
         <NavigationMap
@@ -235,7 +235,7 @@ export default function NavigatePage() {
 
         {/* GPS status overlay */}
         {status !== 'granted' && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2 shadow-lg text-sm">
+          <div className="absolute top-[18px] left-1/2 -translate-x-1/2 z-10 bg-white/[0.92] backdrop-blur-sm rounded-[14px] px-3.5 py-2 flex items-center gap-2 shadow-[0_8px_24px_rgba(36,33,38,0.15)] text-[13px] text-charcoal whitespace-nowrap">
             {status === 'requesting' ? (
               <>
                 <Compass className="h-4 w-4 text-burgundy animate-spin" />
@@ -252,7 +252,7 @@ export default function NavigatePage() {
 
         {/* Progress bar */}
         {journeyState && journeyState.totalCheckpoints > 0 && (
-          <div className="absolute top-0 left-0 right-0 h-1 bg-white/20">
+          <div className="absolute top-0 left-0 right-0 z-10 h-1 bg-white/40">
             <div
               className="h-full bg-gold transition-all duration-500"
               style={{ width: `${progressPct}%` }}
@@ -262,29 +262,29 @@ export default function NavigatePage() {
       </div>
 
       {/* Bottom navigation panel */}
-      <div className="bg-white rounded-t-3xl shadow-xl px-5 pt-4 pb-6 space-y-4">
+      <div className="relative z-10 -mt-7 bg-white rounded-t-[28px] shadow-[0_-12px_30px_rgba(0,0,0,0.12)] px-5 pt-3 pb-6 flex flex-col gap-3.5">
         {/* Handle */}
-        <div className="w-10 h-1 bg-blush-300 rounded-full mx-auto" />
+        <div className="w-10 h-1 bg-blush-300 rounded-full mx-auto mb-1" aria-hidden="true" />
 
         {/* Checkpoint info */}
         {activeCheckpoint ? (
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-6 h-6 rounded-full bg-burgundy flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+            <div className="flex items-center gap-2.5 mb-1">
+              <div className="w-[26px] h-[26px] rounded-full bg-burgundy flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 {activeCheckpoint.sequence + 1}
               </div>
-              <h2 className="font-serif font-semibold text-charcoal truncate">{activeCheckpoint.title}</h2>
+              <h2 className="font-serif text-[19px] font-semibold text-charcoal truncate">{activeCheckpoint.title}</h2>
             </div>
             {activeCheckpoint.instructionText && (
-              <p className="text-sm text-charcoal/60 ml-8">{activeCheckpoint.instructionText}</p>
+              <p className="text-sm leading-[1.5] text-charcoal/60 ml-9">{activeCheckpoint.instructionText}</p>
             )}
           </div>
         ) : nextIsFinalDestination ? (
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-gold flex items-center justify-center text-white text-xs flex-shrink-0">
-              ★
+          <div className="flex items-center gap-2.5">
+            <div className="w-[26px] h-[26px] rounded-full bg-gold flex items-center justify-center text-white flex-shrink-0" aria-hidden="true">
+              <Star className="h-3.5 w-3.5 fill-white" />
             </div>
-            <h2 className="font-serif font-semibold text-charcoal">Head to the final destination</h2>
+            <h2 className="font-serif text-[19px] font-semibold text-charcoal">Head to the final destination</h2>
           </div>
         ) : (
           <div className="text-center text-charcoal/50 text-sm py-2">Loading checkpoint…</div>
@@ -292,10 +292,10 @@ export default function NavigatePage() {
 
         {/* Distance */}
         {distanceText && (
-          <div className="flex items-center gap-3 bg-cream rounded-xl px-4 py-3">
-            <Navigation2 className="h-5 w-5 text-burgundy flex-shrink-0" />
+          <div className="flex items-center gap-3 bg-cream rounded-2xl px-4 py-3">
+            <Navigation2 className="h-[22px] w-[22px] text-burgundy flex-shrink-0" />
             <div>
-              <p className="text-lg font-semibold text-charcoal">{distanceText}</p>
+              <p className="text-xl font-semibold text-charcoal">{distanceText}</p>
               {route?.steps[0] && (
                 <p className="text-xs text-charcoal/60">{route.steps[0].instruction}</p>
               )}
@@ -305,7 +305,7 @@ export default function NavigatePage() {
 
         {/* GPS accuracy warning */}
         {accuracy && accuracy > 100 && (
-          <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 rounded-xl px-3 py-2">
+          <div className="flex items-center gap-2 text-xs text-amber-800 bg-amber-50 rounded-xl px-3 py-2">
             <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
             GPS accuracy is low ({Math.round(accuracy)}m). Checkpoint detection may be delayed.
           </div>
@@ -313,20 +313,20 @@ export default function NavigatePage() {
 
         {/* Progress */}
         {journeyState && journeyState.totalCheckpoints > 0 && (
-          <div className="flex items-center gap-2 text-xs text-charcoal/50">
+          <div className="flex items-center gap-2 text-xs text-charcoal/[0.55]">
             <CheckCircle2 className="h-3.5 w-3.5" />
             {journeyState.completedCheckpointIds.length} of {journeyState.totalCheckpoints} checkpoints complete
           </div>
         )}
 
         {/* External navigation + instruction */}
-        <div className="flex gap-2">
+        <div className="flex gap-2.5 mt-auto">
           {currentTarget && (
             <a
               href={`https://maps.google.com/maps?daddr=${currentTarget.latitude},${currentTarget.longitude}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-1.5 h-10 rounded-xl border border-blush-300 text-sm text-charcoal/70 hover:bg-cream transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 h-[46px] rounded-[14px] border border-blush-300 text-sm text-charcoal/75 hover:bg-cream transition-colors"
             >
               <ExternalLink className="h-4 w-4" />
               Open in Maps
@@ -335,7 +335,7 @@ export default function NavigatePage() {
           {activeCheckpoint?.instructionText && (
             <button
               onClick={() => setShowInstruction(!showInstruction)}
-              className="flex items-center justify-center gap-1.5 h-10 px-4 rounded-xl border border-blush-300 text-sm text-charcoal/70 hover:bg-cream transition-colors"
+              className="flex items-center justify-center gap-1.5 h-[46px] px-4 rounded-[14px] border border-blush-300 text-sm text-charcoal/75 hover:bg-cream transition-colors"
               aria-label="Show clue"
             >
               <MapPin className="h-4 w-4" />
@@ -390,7 +390,7 @@ function CheckpointReveal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-charcoal/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 font-sans"
       role="dialog"
       aria-modal="true"
       aria-labelledby="checkpoint-title"
@@ -400,38 +400,38 @@ function CheckpointReveal({
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         transition={{ type: 'spring', damping: 20 }}
-        className="bg-cream rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden"
+        className="bg-cream rounded-[28px] w-full max-w-sm shadow-[0_30px_60px_rgba(0,0,0,0.35)] overflow-hidden max-h-[calc(100dvh-2rem)] overflow-y-auto"
       >
         {/* Gold header */}
-        <div className="bg-gradient-to-r from-burgundy to-burgundy-600 px-6 py-5 text-center">
+        <div className="bg-gradient-to-r from-burgundy to-burgundy-600 px-6 pt-[22px] pb-5 text-center">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring' }}
-            className="text-4xl mb-2"
+            className="flex justify-center mb-1.5"
             aria-hidden="true"
           >
-            ✨
+            <Sparkle className="h-[34px] w-[34px] text-gold fill-gold" strokeWidth={1} />
           </motion.div>
-          <p className="text-white/70 text-xs font-medium tracking-widest uppercase mb-1">You found it!</p>
-          <h2 id="checkpoint-title" className="font-serif text-xl font-semibold text-white">
+          <p className="text-white/[0.72] text-[11px] font-semibold tracking-[0.22em] uppercase mb-1">You found it!</p>
+          <h2 id="checkpoint-title" className="font-serif text-[22px] leading-snug font-semibold text-white">
             {content.checkpointTitle}
           </h2>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-[22px] flex flex-col gap-4">
           {/* Image */}
           {content.imageUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={content.imageUrl}
               alt="A memory"
-              className="w-full rounded-2xl object-cover max-h-48"
+              className="w-full h-[170px] rounded-[18px] object-cover"
             />
           )}
 
           {/* Message */}
-          <p className="font-serif text-charcoal leading-relaxed italic">{content.romanticMessage}</p>
+          <p className="font-serif text-[17px] text-charcoal leading-[1.6] italic">{content.romanticMessage}</p>
 
           {/* Audio */}
           {content.audioUrl && (
@@ -439,10 +439,14 @@ function CheckpointReveal({
               <audio ref={audioRef} src={content.audioUrl} preload="none" />
               <button
                 onClick={toggleAudio}
-                className="flex items-center gap-2 text-sm text-burgundy font-medium hover:opacity-80"
+                className="flex items-center gap-2.5 min-h-[44px] text-sm text-burgundy font-medium hover:opacity-80 text-left"
               >
-                <span className="w-8 h-8 rounded-full bg-burgundy/10 flex items-center justify-center text-burgundy">
-                  {playing ? '⏸' : '▶'}
+                <span className="w-9 h-9 rounded-full bg-burgundy/10 flex items-center justify-center text-burgundy" aria-hidden="true">
+                  {playing ? (
+                    <Pause className="h-3.5 w-3.5 fill-burgundy" />
+                  ) : (
+                    <Play className="h-3.5 w-3.5 fill-burgundy ml-0.5" />
+                  )}
                 </span>
                 {playing ? 'Pause voice message' : 'Play voice message'}
               </button>
@@ -451,13 +455,13 @@ function CheckpointReveal({
 
           {/* Clue */}
           {content.clue && (
-            <div className="bg-gold/10 border border-gold/30 rounded-xl px-4 py-3">
-              <p className="text-xs font-medium text-gold-500 mb-1">Your next clue</p>
-              <p className="text-sm text-charcoal">{content.clue}</p>
+            <div className="bg-gold/[0.12] border border-gold/40 rounded-[14px] px-3.5 py-3">
+              <p className="text-xs font-semibold text-[#8A6A24] mb-1">Your next clue</p>
+              <p className="text-sm leading-[1.5] text-charcoal">{content.clue}</p>
             </div>
           )}
 
-          <Button onClick={onContinue} className="w-full" size="lg">
+          <Button onClick={onContinue} className="w-full h-[54px] rounded-2xl text-base font-semibold" size="lg">
             Continue Journey
           </Button>
         </div>

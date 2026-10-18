@@ -137,10 +137,10 @@ export default function MemoryCapture({ token }: { token: string }) {
 
   return (
     <div className="w-full text-left">
-      <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-3xl p-5 space-y-4">
+      <div className="bg-white/10 backdrop-blur-sm border border-white/[0.22] rounded-[26px] p-5 flex flex-col gap-4">
         <div className="text-center">
-          <h2 className="font-serif text-xl font-semibold text-white">Capture this moment</h2>
-          <p className="text-white/70 text-sm mt-1">Take a selfie, snap some photos, or leave a message.</p>
+          <h2 className="font-serif text-[22px] font-semibold text-white">Capture this moment</h2>
+          <p className="text-white/[0.72] text-sm mt-1">Take a selfie, snap some photos, or leave a message.</p>
         </div>
 
         {/* Hidden pickers: front camera for selfies, camera or library for photos */}
@@ -166,7 +166,7 @@ export default function MemoryCapture({ token }: { token: string }) {
             type="button"
             onClick={() => selfieRef.current?.click()}
             disabled={uploading}
-            className="flex flex-col items-center justify-center gap-2 h-24 rounded-2xl bg-white text-burgundy font-semibold shadow-lg active:scale-95 transition-transform disabled:opacity-60"
+            className="flex flex-col items-center justify-center gap-2 h-[100px] rounded-[20px] bg-white text-burgundy text-[15px] font-semibold shadow-[0_12px_28px_rgba(26,6,12,0.25)] active:scale-95 transition-transform disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300"
           >
             <Camera className="h-7 w-7" />
             Take a selfie
@@ -175,7 +175,7 @@ export default function MemoryCapture({ token }: { token: string }) {
             type="button"
             onClick={() => photosRef.current?.click()}
             disabled={uploading}
-            className="flex flex-col items-center justify-center gap-2 h-24 rounded-2xl bg-white/15 border border-white/30 text-white font-semibold active:scale-95 transition-transform disabled:opacity-60"
+            className="flex flex-col items-center justify-center gap-2 h-[100px] rounded-[20px] bg-white/[0.14] border border-white/[0.32] text-white text-[15px] font-semibold hover:bg-white/20 active:scale-95 transition-all disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-300"
           >
             <ImagePlus className="h-7 w-7" />
             Add photos
@@ -186,17 +186,17 @@ export default function MemoryCapture({ token }: { token: string }) {
         {pending.length > 0 && (
           <div className="grid grid-cols-3 gap-2">
             {pending.map((p, i) => (
-              <div key={p.previewUrl} className="relative aspect-square rounded-xl overflow-hidden bg-white/10">
+              <div key={p.previewUrl} className="relative aspect-square rounded-[14px] overflow-hidden bg-white/10">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.previewUrl} alt={`Photo ${i + 1} ready to share`} className="w-full h-full object-cover" />
                 {!uploading && (
                   <button
                     type="button"
                     onClick={() => removePending(i)}
-                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center"
+                    className="absolute top-[5px] right-[5px] w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center after:absolute after:-inset-2.5 after:content-['']"
                     aria-label={`Remove photo ${i + 1}`}
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-3 w-3" strokeWidth={2.5} />
                   </button>
                 )}
               </div>
@@ -213,12 +213,12 @@ export default function MemoryCapture({ token }: { token: string }) {
             rows={3}
             disabled={uploading}
             placeholder="Write something to remember this moment… (optional)"
-            className="w-full rounded-2xl bg-white/90 text-charcoal placeholder:text-charcoal/40 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-white/60 resize-none"
+            className="w-full rounded-[18px] border-0 bg-white/[0.92] text-charcoal placeholder:text-charcoal/45 px-3.5 py-3 text-[15px] leading-[1.5] focus:outline-none focus:ring-2 focus:ring-white/60 resize-none"
           />
         </div>
 
         {error && (
-          <p className="text-sm text-white bg-red-900/40 rounded-xl px-3 py-2" role="alert">{error}</p>
+          <p className="text-sm text-white bg-red-950/40 border border-red-300/30 rounded-[14px] px-3 py-2" role="alert">{error}</p>
         )}
 
         <Button
@@ -226,9 +226,9 @@ export default function MemoryCapture({ token }: { token: string }) {
           loading={uploading}
           disabled={pending.length === 0 && !message.trim()}
           size="lg"
-          className="w-full bg-white text-burgundy hover:bg-cream font-semibold rounded-2xl border-0"
+          className="w-full h-[54px] bg-white text-burgundy hover:bg-cream text-base font-semibold rounded-2xl border-0"
         >
-          {!uploading && <Send className="h-4 w-4" />}
+          {!uploading && <Send className="h-[17px] w-[17px]" />}
           {uploading ? progress : pending.length > 1 ? `Share ${pending.length} photos` : 'Share'}
         </Button>
 
@@ -249,13 +249,13 @@ export default function MemoryCapture({ token }: { token: string }) {
 
       {/* Shared memories */}
       {memories.length > 0 && (
-        <div className="mt-6">
-          <p className="text-white/70 text-xs font-medium tracking-widest uppercase text-center mb-3">
+        <div className="mt-7">
+          <p className="text-white/[0.72] text-xs font-semibold tracking-[0.2em] uppercase text-center mb-3.5">
             Your memories ({memories.length})
           </p>
           <div className="grid grid-cols-2 gap-3">
             {memories.map((m) => (
-              <div key={m._id} className="rounded-2xl overflow-hidden bg-white/10 border border-white/15">
+              <div key={m._id} className="rounded-[18px] overflow-hidden bg-white/10 border border-white/[0.16]">
                 {m.imageUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -266,7 +266,7 @@ export default function MemoryCapture({ token }: { token: string }) {
                   />
                 )}
                 {m.message && (
-                  <p className="text-sm text-white/90 font-serif italic px-3 py-2 line-clamp-4">{m.message}</p>
+                  <p className={`text-sm leading-[1.45] text-white/90 font-serif italic px-3 line-clamp-4 ${m.imageUrl ? 'py-2.5' : 'py-3.5'}`}>{m.message}</p>
                 )}
               </div>
             ))}

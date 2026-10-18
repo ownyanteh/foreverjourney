@@ -37,7 +37,7 @@ export default function JourneyStatusControls({ journeyId, status }: Props) {
   return (
     <div className="space-y-3">
       {error && (
-        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3" role="alert">
+        <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5" role="alert">
           {error}
         </div>
       )}
@@ -47,9 +47,9 @@ export default function JourneyStatusControls({ journeyId, status }: Props) {
             onClick={() => callAction('activate')}
             loading={loading === 'activate'}
             size="sm"
-            className="gap-1.5"
+            className="h-9 px-3.5 gap-1.5 rounded-[10px] bg-burgundy text-white text-[13px] font-semibold shadow-none hover:bg-burgundy-600 active:scale-100"
           >
-            <Play className="h-3.5 w-3.5" />
+            <Play className="h-[13px] w-[13px] fill-current" />
             Activate Journey
           </Button>
         )}
@@ -59,17 +59,21 @@ export default function JourneyStatusControls({ journeyId, status }: Props) {
             loading={loading === 'deactivate'}
             variant="secondary"
             size="sm"
-            className="gap-1.5"
+            className="h-9 px-3.5 gap-1.5 rounded-[10px] border-0 bg-blush-100 text-charcoal text-[13px] font-medium hover:bg-blush-200"
           >
-            <Pause className="h-3.5 w-3.5" />
+            <Pause className="h-[13px] w-[13px]" />
             Deactivate
           </Button>
         )}
         {status !== 'draft' && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <RotateCcw className="h-3.5 w-3.5" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-3.5 gap-1.5 rounded-[10px] border border-blush-300 bg-white text-charcoal text-[13px] font-medium hover:bg-blush-100 hover:text-charcoal"
+              >
+                <RotateCcw className="h-[13px] w-[13px]" />
                 Reset
               </Button>
             </AlertDialogTrigger>

@@ -46,31 +46,31 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-cream px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-dvh flex items-center justify-center bg-cream bg-[radial-gradient(70%_60%_at_50%_0%,#FCF0F3_0%,#FFF8F0_70%)] px-4 py-12 text-charcoal">
+      <div className="w-full max-w-[380px]">
         {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
+        <div className="flex flex-col items-center mb-8 text-center">
           <div className="w-16 h-16 rounded-full bg-burgundy/10 flex items-center justify-center mb-4">
-            <Heart className="h-8 w-8 text-burgundy fill-burgundy" />
+            <Heart className="h-[30px] w-[30px] text-burgundy fill-burgundy" strokeWidth={1.5} />
           </div>
-          <h1 className="font-serif text-2xl font-semibold text-charcoal">Our Forever Journey</h1>
+          <h1 className="font-serif text-[26px] font-semibold text-charcoal">Our Forever Journey</h1>
           <p className="text-sm text-charcoal/60 mt-1">Administrator Portal</p>
         </div>
 
         {/* Form */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-blush-200 shadow-sm p-6">
+        <div className="bg-white/85 backdrop-blur-sm rounded-[20px] border border-blush-200 shadow-[0_20px_50px_rgba(122,32,56,0.08)] p-6">
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
             {serverError && (
               <div
                 role="alert"
-                className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3"
+                className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5"
               >
                 {serverError}
               </div>
             )}
 
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email" className="text-sm font-medium">Email address</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
                 <Input
@@ -78,7 +78,7 @@ export default function AdminLoginPage() {
                   type="email"
                   autoComplete="email"
                   placeholder="you@example.com"
-                  className="pl-9"
+                  className="h-[46px] rounded-xl border-blush-300 bg-white pl-[38px] pr-3.5 text-[15px] text-charcoal"
                   error={errors.email?.message}
                   {...register('email')}
                 />
@@ -89,7 +89,7 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40" />
                 <Input
@@ -97,17 +97,17 @@ export default function AdminLoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className="pl-9 pr-10"
+                  className="h-[46px] rounded-xl border-blush-300 bg-white pl-[38px] pr-11 text-[15px] text-charcoal"
                   error={errors.password?.message}
                   {...register('password')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-charcoal/40 hover:text-charcoal/70 transition-colors"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-[38px] w-[38px] flex items-center justify-center rounded-[10px] text-charcoal/45 hover:text-charcoal/70 transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
                 </button>
               </div>
               {errors.password && (
@@ -117,7 +117,7 @@ export default function AdminLoginPage() {
 
             <Button
               type="submit"
-              className="w-full mt-2"
+              className="w-full mt-1 h-12 rounded-xl bg-burgundy text-[15px] font-semibold shadow-none hover:bg-burgundy-600 active:scale-100"
               size="lg"
               loading={isSubmitting}
             >

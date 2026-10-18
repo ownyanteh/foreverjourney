@@ -10,9 +10,20 @@ import { ProposalResponse } from '@/lib/db/models/ProposalResponse'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Plus, Heart, CheckCircle2, Clock } from 'lucide-react'
+import { Plus, Heart } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import DeleteJourneyButton from '@/components/admin/DeleteJourneyButton'
+import { cn } from '@/lib/utils'
+import {
+  adminCard,
+  adminBadge,
+  adminBtnPrimary,
+  adminBtnOutlineSm,
+  adminPageTitleLg,
+  statusBadgeClass,
+  yesBadgeClass,
+  noBadgeClass,
+} from '@/components/admin/adminStyles'
 
 export const metadata: Metadata = { title: 'Journeys' }
 
@@ -35,64 +46,71 @@ export default async function JourneysPage() {
         createdAt: j.createdAt,
         updatedAt: j.updatedAt,
         checkpointCount,
+        mode: (j.mode === 'questions' ? 'questions' : 'route') as 'route' | 'questions',
+        questionCount: Array.isArray(j.memoryQuestions) ? j.memoryQuestions.length : 0,
         response: response?.response ?? null,
       }
     })
   )
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-7">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-semibold text-charcoal">Journeys</h1>
-          <p className="text-charcoal/60 mt-1">{journeys.length} total</p>
+          <h1 className={adminPageTitleLg}>Journeys</h1>
+          <p className="text-[15px] text-charcoal/60 mt-1.5">{journeys.length} total</p>
         </div>
-        <Button asChild>
+        <Button asChild className={adminBtnPrimary}>
           <Link href="/admin/journeys/new">
-            <Plus className="h-4 w-4" /> New Journey
+            <Plus className="h-4 w-4" strokeWidth={2.2} /> New Journey
           </Link>
         </Button>
       </div>
 
       {journeysWithStats.length === 0 ? (
-        <Card>
-          <CardContent className="py-16 text-center">
+        <Card className={adminCard}>
+          <CardContent className="py-16 px-6 text-center">
             <Heart className="h-12 w-12 text-blush-300 mx-auto mb-4" />
             <p className="font-serif text-lg text-charcoal/60 mb-6">No journeys yet. Create your first one.</p>
-            <Button asChild>
-              <Link href="/admin/journeys/new"><Plus className="h-4 w-4" /> Create Journey</Link>
+            <Button asChild className={adminBtnPrimary}>
+              <Link href="/admin/journeys/new"><Plus className="h-4 w-4" strokeWidth={2.2} /> Create Journey</Link>
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {journeysWithStats.map((j) => (
-            <Card key={j._id} className="hover:shadow-md transition-shadow">
+            <Card key={j._id} className={cn(adminCard, 'hover:shadow-md transition-shadow')}>
               <CardContent className="p-5">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
-                      <h2 className="font-medium text-charcoal">{j.title}</h2>
-                      <Badge variant={j.status as 'draft' | 'active' | 'completed' | 'deactivated'}>{j.status}</Badge>
+                    <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                      <h2 className="text-base font-semibold text-charcoal">{j.title}</h2>
+                      <Badge
+                        variant={j.status as 'draft' | 'active' | 'completed' | 'deactivated'}
+                        className={cn(adminBadge, statusBadgeClass[j.status] ?? statusBadgeClass.draft)}
+                      >
+                        {j.status}
+                      </Badge>
                       {j.response && (
-                        <Badge variant={j.response === 'yes' ? 'success' : 'secondary'}>
+                        <Badge
+                          variant={j.response === 'yes' ? 'success' : 'secondary'}
+                          className={cn(adminBadge, j.response === 'yes' ? yesBadgeClass : noBadgeClass)}
+                        >
                           {j.response === 'yes' ? '💍 YES!' : 'No'}
                         </Badge>
                       )}
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-charcoal/50 flex-wrap">
-                      <span className="flex items-center gap-1">
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        {j.checkpointCount} checkpoints
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        {formatDistanceToNow(new Date(j.updatedAt), { addSuffix: true })}
-                      </span>
-                    </div>
+                    <p className="text-[13px] text-charcoal/55">
+                      {j.mode === 'questions' ? 'Memory questions' : 'Route & destination'}
+                      {' · '}
+                      {j.mode === 'questions' ? `${j.questionCount} questions` : `${j.checkpointCount} checkpoints`}
+                      {' · '}
+                      {formatDistanceToNow(new Date(j.updatedAt), { addSuffix: true })}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <Button asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm" className={adminBtnOutlineSm}>
                       <Link href={`/admin/journeys/${j._id}`}>Manage</Link>
                     </Button>
                     <DeleteJourneyButton journeyId={j._id} />

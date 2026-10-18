@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { connectDB } from '@/lib/db/connect'
 import { Journey } from '@/lib/db/models/Journey'
 import { hashToken } from '@/lib/tokens'
+import { Mail } from 'lucide-react'
 import InvitationLanding from '@/components/journey/InvitationLanding'
 
 export const metadata: Metadata = {
@@ -57,15 +58,18 @@ export default async function JourneyInvitationPage({ params }: Props) {
 
 function JourneyUnavailable({ message }: { message?: string }) {
   return (
-    <div className="min-h-dvh flex items-center justify-center bg-cream px-6">
-      <div className="text-center max-w-sm">
-        <div className="text-5xl mb-6">💌</div>
-        <h1 className="font-serif text-2xl font-semibold text-charcoal mb-3">
+    <div className="min-h-dvh flex items-center justify-center bg-cream px-8 font-sans">
+      <div className="text-center max-w-sm flex flex-col items-center">
+        <div className="w-24 h-24 rounded-full bg-blush-100 border border-blush-200 flex items-center justify-center mb-8">
+          <Mail className="h-[42px] w-[42px] text-burgundy" strokeWidth={1.6} aria-hidden="true" />
+        </div>
+        <h1 className="font-serif text-[28px] leading-[1.2] font-semibold text-charcoal mb-3.5">
           This link is unavailable
         </h1>
-        <p className="text-charcoal/60 text-sm">
+        <p className="text-charcoal/[0.62] text-[15px] leading-[1.65] max-w-[300px]">
           {message ?? 'This invitation link may have expired or been revoked. Please check with the sender.'}
         </p>
+        <div className="mt-10 w-12 h-0.5 rounded-full bg-blush-300" aria-hidden="true" />
       </div>
     </div>
   )
