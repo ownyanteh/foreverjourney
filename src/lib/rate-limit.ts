@@ -17,6 +17,13 @@ const signupLimiter = new RateLimiterMemory({
   blockDuration: 60 * 60,
 })
 
+/** Password reset emails: 5 per hour per IP */
+const passwordResetLimiter = new RateLimiterMemory({
+  points: 5,
+  duration: 60 * 60,
+  blockDuration: 60 * 60,
+})
+
 /** Invitation token resolution: 20 per minute per IP */
 const invitationLimiter = new RateLimiterMemory({
   points: 20,
@@ -84,6 +91,10 @@ export async function checkLoginRateLimit(req: NextRequest): Promise<RateLimitRe
 
 export async function checkSignupRateLimit(req: NextRequest): Promise<RateLimitResult> {
   return checkLimit(signupLimiter, `signup:${getClientIP(req)}`)
+}
+
+export async function checkPasswordResetRateLimit(req: NextRequest): Promise<RateLimitResult> {
+  return checkLimit(passwordResetLimiter, `reset:${getClientIP(req)}`)
 }
 
 export async function checkInvitationRateLimit(req: NextRequest): Promise<RateLimitResult> {

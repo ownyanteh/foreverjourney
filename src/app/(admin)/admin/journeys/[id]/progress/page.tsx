@@ -18,6 +18,8 @@ import { formatDistanceToNow, format } from 'date-fns'
 import { feelingDisplay } from '@/lib/feelings'
 import { cn } from '@/lib/utils'
 import MemoriesGallery from '@/components/admin/MemoriesGallery'
+import { isPhotoExpired, photoExpiryOf } from '@/lib/memories'
+import { env } from '@/lib/env'
 import {
   adminCard,
   adminCardHeader,
@@ -160,12 +162,20 @@ export default async function JourneyProgressPage({ params }: Props) {
       {/* Memories shared at the final destination */}
       <MemoriesGallery
         journeyId={journeyId}
-        memories={memories.map((m) => ({
-          _id: m._id.toString(),
-          imageUrl: m.imageUrl ?? null,
-          message: m.message ?? '',
-          createdAt: new Date(m.createdAt).toISOString(),
-        }))}
+        retentionDays={env.MEMORY_RETENTION_DAYS}
+        memories={memories
+          .map((m) => {
+            // Photos past expiry are hidden even before the daily cleanup removes them
+            const showPhoto = Boolean(m.imageUrl) && !isPhotoExpired(m)
+            return {
+              _id: m._id.toString(),
+              imageUrl: showPhoto ? m.imageUrl : null,
+              imageExpiresAt: showPhoto ? photoExpiryOf(m).toISOString() : null,
+              message: m.message ?? '',
+              createdAt: new Date(m.createdAt).toISOString(),
+            }
+          })
+          .filter((m) => m.imageUrl || m.message)}
       />
 
       {/* Sessions overview */}

@@ -8,6 +8,7 @@ export interface IMemory extends Document {
   sessionId: Types.ObjectId
   imageUrl: string | null
   imagePublicId: string | null
+  imageExpiresAt: Date | null
   width: number | null
   height: number | null
   message: string
@@ -20,6 +21,8 @@ const MemorySchema = new Schema<IMemory>(
     sessionId: { type: Schema.Types.ObjectId, ref: 'JourneySession', required: true },
     imageUrl: { type: String, default: null },
     imagePublicId: { type: String, default: null },
+    // The photo file is deleted from storage after this date (the message is kept)
+    imageExpiresAt: { type: Date, default: null, index: true },
     width: { type: Number, default: null },
     height: { type: Number, default: null },
     message: { type: String, default: '', maxlength: 1000, trim: true },

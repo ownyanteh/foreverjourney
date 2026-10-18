@@ -57,6 +57,15 @@ export const env = {
   // Optional: Resend email
   RESEND_API_KEY: optionalEnv('RESEND_API_KEY'),
   ADMIN_NOTIFICATION_EMAIL: optionalEnv('ADMIN_NOTIFICATION_EMAIL'),
+  // Sender for outgoing email. Without a verified domain in Resend, only
+  // onboarding@resend.dev works, and it can only send to your own Resend email.
+  EMAIL_FROM: optionalEnv('EMAIL_FROM', 'Our Forever Journey <onboarding@resend.dev>'),
+
+  // Shared photos are deleted this many days after upload
+  MEMORY_RETENTION_DAYS: Math.max(1, parseInt(optionalEnv('MEMORY_RETENTION_DAYS', '30'), 10) || 30),
+
+  // Protects the scheduled cleanup endpoint (Vercel sends it as a Bearer token)
+  CRON_SECRET: optionalEnv('CRON_SECRET'),
 
   // Node environment
   NODE_ENV: optionalEnv('NODE_ENV', 'development'),

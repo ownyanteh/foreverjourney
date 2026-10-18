@@ -16,6 +16,7 @@ import { adminCard, adminCardHeader, adminCardTitle, adminBtnOutlineSm } from '@
 export interface GalleryMemory {
   _id: string
   imageUrl: string | null
+  imageExpiresAt: string | null
   message: string
   createdAt: string
 }
@@ -24,7 +25,15 @@ const rowTime = 'text-xs text-charcoal/45 flex-shrink-0'
 const quote = 'font-serif italic text-charcoal/80 leading-[1.55] whitespace-pre-wrap'
 
 /** Memories shared at the final destination, with delete (one or all) for the admin. */
-export default function MemoriesGallery({ journeyId, memories }: { journeyId: string; memories: GalleryMemory[] }) {
+export default function MemoriesGallery({
+  journeyId,
+  memories,
+  retentionDays,
+}: {
+  journeyId: string
+  memories: GalleryMemory[]
+  retentionDays: number
+}) {
   const router = useRouter()
   const [busy, setBusy] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -89,6 +98,11 @@ export default function MemoriesGallery({ journeyId, memories }: { journeyId: st
         </AlertDialog>
       </CardHeader>
       <CardContent className="px-6 py-5 flex flex-col gap-3">
+        {memories.some((m) => m.imageUrl) && (
+          <p className="text-[13px] text-charcoal/60 bg-amber-50 border border-amber-200 rounded-xl px-3.5 py-2.5">
+            Photos are deleted {retentionDays} days after they&apos;re shared. Download any you want to keep.
+          </p>
+        )}
         {error && (
           <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5" role="alert">{error}</div>
         )}
@@ -123,6 +137,17 @@ export default function MemoriesGallery({ journeyId, memories }: { journeyId: st
                     <p className={cn(quote, m.imageUrl ? 'text-sm' : 'text-[15px]')}>{m.message}</p>
                   )}
                   <p className={rowTime}>{format(new Date(m.createdAt), 'PPP p')}</p>
+                  {m.imageUrl && m.imageExpiresAt && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                      <a
+                        href={m.imageUrl.replace('/upload/', '/upload/fl_attachment/')}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-burgundy hover:text-burgundy-600"
+                      >
+                        <Download className="h-3.5 w-3.5" /> Download
+                      </a>
+                      <span className="text-xs text-amber-700">Expires {format(new Date(m.imageExpiresAt), 'MMM d')}</span>
+                    </div>
+                  )}
                 </div>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

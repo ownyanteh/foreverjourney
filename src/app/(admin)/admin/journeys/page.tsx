@@ -5,6 +5,10 @@ import { redirect } from 'next/navigation'
 import { getAdminSession } from '@/lib/auth/session'
 import { connectDB } from '@/lib/db/connect'
 import { Journey } from '@/lib/db/models/Journey'
+import { AdminUser } from '@/lib/db/models/AdminUser'
+import { JourneyRequest } from '@/lib/db/models/JourneyRequest'
+import { journeyLimitFor } from '@/lib/limits'
+import NewJourneyAction from '@/components/admin/NewJourneyAction'
 import { Checkpoint } from '@/lib/db/models/Checkpoint'
 import { ProposalResponse } from '@/lib/db/models/ProposalResponse'
 import { Badge } from '@/components/ui/badge'
@@ -33,6 +37,9 @@ export default async function JourneysPage() {
 
   await connectDB()
   const journeys = (await Journey.find({ adminId: session.adminId }).sort({ updatedAt: -1 }).lean()) as any[]
+  const account = (await AdminUser.findById(session.adminId).select('journeyLimit').lean()) as { journeyLimit?: number } | null
+  const journeyLimit = journeyLimitFor(account)
+  const hasPendingRequest = Boolean(await JourneyRequest.exists({ adminId: session.adminId, status: 'pending' }))
 
   const journeysWithStats = await Promise.all(
     journeys.map(async (j) => {
@@ -60,11 +67,7 @@ export default async function JourneysPage() {
           <h1 className={adminPageTitleLg}>Journeys</h1>
           <p className="text-[15px] text-charcoal/60 mt-1.5">{journeys.length} total</p>
         </div>
-        <Button asChild className={adminBtnPrimary}>
-          <Link href="/admin/journeys/new">
-            <Plus className="h-4 w-4" strokeWidth={2.2} /> New Journey
-          </Link>
-        </Button>
+        <NewJourneyAction used={journeys.length} limit={journeyLimit} alreadyRequested={hasPendingRequest} />
       </div>
 
       {journeysWithStats.length === 0 ? (

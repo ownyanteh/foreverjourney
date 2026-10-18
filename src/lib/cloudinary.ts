@@ -27,6 +27,8 @@ export function uploadImage(buffer: Buffer, folder: string): Promise<UploadApiRe
 }
 
 export async function deleteImages(publicIds: string[]): Promise<void> {
-  if (publicIds.length === 0) return
-  await cloudinary.api.delete_resources(publicIds, { resource_type: 'image' })
+  // Cloudinary accepts at most 100 public IDs per call
+  for (let i = 0; i < publicIds.length; i += 100) {
+    await cloudinary.api.delete_resources(publicIds.slice(i, i + 100), { resource_type: 'image' })
+  }
 }

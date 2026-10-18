@@ -3,6 +3,8 @@ import { connectDB } from '@/lib/db/connect'
 import { Journey } from '@/lib/db/models/Journey'
 import { Checkpoint } from '@/lib/db/models/Checkpoint'
 import { requireAdminSession } from '@/lib/auth/session'
+import { AdminUser } from '@/lib/db/models/AdminUser'
+import { journeyLimitFor } from '@/lib/limits'
 import { createJourneySchema } from '@/lib/validation/schemas'
 
 export async function GET() {
@@ -43,6 +45,19 @@ export async function POST(req: NextRequest) {
     }
 
     await connectDB()
+
+    const user = (await AdminUser.findById(session.adminId).select('journeyLimit').lean()) as { journeyLimit?: number } | null
+    const limit = journeyLimitFor(user)
+    const existing = await Journey.countDocuments({ adminId: session.adminId })
+    if (existing >= limit) {
+      return NextResponse.json(
+        {
+          error: `You can create up to ${limit} journey${limit === 1 ? '' : 's'}. Use "Request more journeys" on your dashboard to ask for more.`,
+          code: 'JOURNEY_LIMIT',
+        },
+        { status: 403 }
+      )
+    }
 
     const journey = await Journey.create({
       adminId: session.adminId,

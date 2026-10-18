@@ -34,6 +34,15 @@ export const signupSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters').max(128, 'Password is too long'),
 })
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().email('Invalid email address').max(254).toLowerCase(),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(20, 'This reset link is invalid or has expired. Please request a new one.').max(200, 'This reset link is invalid or has expired. Please request a new one.'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128, 'Password is too long'),
+})
+
 // ── Journey schemas ────────────────────────────────────────────────────────────
 
 export const welcomeContentSchema = z.object({

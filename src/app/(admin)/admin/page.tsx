@@ -6,6 +6,9 @@ import { getAdminSession } from '@/lib/auth/session'
 import { connectDB } from '@/lib/db/connect'
 import { Journey } from '@/lib/db/models/Journey'
 import { AdminUser } from '@/lib/db/models/AdminUser'
+import { JourneyRequest } from '@/lib/db/models/JourneyRequest'
+import { journeyLimitFor } from '@/lib/limits'
+import NewJourneyAction from '@/components/admin/NewJourneyAction'
 import { JourneyEvent } from '@/lib/db/models/JourneyEvent'
 import { Checkpoint } from '@/lib/db/models/Checkpoint'
 import { ProposalResponse } from '@/lib/db/models/ProposalResponse'
@@ -34,8 +37,14 @@ export default async function AdminDashboardPage() {
 
   await connectDB()
 
-  const account = (await AdminUser.findById(session.adminId).select('name').lean()) as { name?: string } | null
+  const account = (await AdminUser.findById(session.adminId).select('name journeyLimit').lean()) as
+    | { name?: string; journeyLimit?: number }
+    | null
   const firstName = account?.name?.trim().split(/\s+/)[0] ?? ''
+  const journeyLimit = journeyLimitFor(account)
+  const hasPendingRequest = Boolean(
+    await JourneyRequest.exists({ adminId: session.adminId, status: 'pending' })
+  )
 
   const journeys = (await Journey.find({ adminId: session.adminId })
     .sort({ updatedAt: -1 })
@@ -68,12 +77,7 @@ export default async function AdminDashboardPage() {
             {firstName ? `Welcome back, ${firstName}.` : 'Welcome back.'} Here&apos;s what&apos;s happening.
           </p>
         </div>
-        <Button asChild className={adminBtnPrimary}>
-          <Link href="/admin/journeys/new">
-            <Plus className="h-4 w-4" strokeWidth={2.2} />
-            New Journey
-          </Link>
-        </Button>
+        <NewJourneyAction used={totalJourneys} limit={journeyLimit} alreadyRequested={hasPendingRequest} />
       </div>
 
       {/* Stat cards */}

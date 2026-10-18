@@ -60,13 +60,22 @@ export default function MemoryCapture({ token }: { token: string }) {
   const [progress, setProgress] = useState('')
   const [error, setError] = useState('')
   const [justShared, setJustShared] = useState(false)
+  const [photoLimit, setPhotoLimit] = useState(2)
+  const [photosRemaining, setPhotosRemaining] = useState(2)
+  const [retentionDays, setRetentionDays] = useState<number | null>(null)
   const selfieRef = useRef<HTMLInputElement>(null)
   const photosRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetch(`/api/journey/${token}/memories`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((json) => json?.memories && setMemories(json.memories))
+      .then((json) => {
+        if (!json) return
+        if (json.memories) setMemories(json.memories)
+        if (typeof json.photoLimit === 'number') setPhotoLimit(json.photoLimit)
+        if (typeof json.photosRemaining === 'number') setPhotosRemaining(json.photosRemaining)
+        if (typeof json.retentionDays === 'number') setRetentionDays(json.retentionDays)
+      })
       .catch(() => {})
   }, [token])
 
@@ -82,11 +91,19 @@ export default function MemoryCapture({ token }: { token: string }) {
   function addFiles(list: FileList | null) {
     if (!list) return
     const files = Array.from(list).filter((f) => f.type.startsWith('image/') || f.type === '')
-    setPending((prev) => [
-      ...prev,
-      ...files.map((file) => ({ file, previewUrl: URL.createObjectURL(file) })),
-    ].slice(0, 10))
-    setError('')
+    const room = Math.max(0, photosRemaining - pending.length)
+    if (files.length > room) {
+      setError(
+        room === 0
+          ? `You can share up to ${photoLimit} photos.`
+          : `You can share up to ${photoLimit} photos, so only the first ${room} ${room === 1 ? 'was' : 'were'} added.`
+      )
+    } else {
+      setError('')
+    }
+    const accepted = files.slice(0, room)
+    if (accepted.length === 0) return
+    setPending((prev) => [...prev, ...accepted.map((file) => ({ file, previewUrl: URL.createObjectURL(file) }))])
     setJustShared(false)
   }
 
@@ -118,6 +135,7 @@ export default function MemoryCapture({ token }: { token: string }) {
         const json = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(json.error || 'Upload failed. Please try again.')
         shared.push(json.memory)
+        if (typeof json.photosRemaining === 'number') setPhotosRemaining(json.photosRemaining)
       }
       setMemories((prev) => [...shared.reverse(), ...prev])
       setPending([])
@@ -141,6 +159,11 @@ export default function MemoryCapture({ token }: { token: string }) {
         <div className="text-center">
           <h2 className="font-serif text-[22px] font-semibold text-white">Capture this moment</h2>
           <p className="text-white/[0.72] text-sm mt-1">Take a selfie, snap some photos, or leave a message.</p>
+          <p className="text-white/55 text-xs mt-1.5">
+            {photosRemaining > 0
+              ? `You can share ${photosRemaining === photoLimit ? `up to ${photoLimit}` : `${photosRemaining} more`} photo${photosRemaining === 1 ? '' : 's'}.`
+              : `You've shared ${photoLimit} photos. You can still leave a message.`}
+          </p>
         </div>
 
         {/* Hidden pickers: front camera for selfies, camera or library for photos */}
@@ -161,6 +184,7 @@ export default function MemoryCapture({ token }: { token: string }) {
           onChange={(e) => { addFiles(e.target.files); e.target.value = '' }}
         />
 
+        {photosRemaining - pending.length > 0 && (
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
@@ -181,6 +205,7 @@ export default function MemoryCapture({ token }: { token: string }) {
             Add photos
           </button>
         </div>
+        )}
 
         {/* Pending previews */}
         {pending.length > 0 && (
@@ -253,6 +278,11 @@ export default function MemoryCapture({ token }: { token: string }) {
           <p className="text-white/[0.72] text-xs font-semibold tracking-[0.2em] uppercase text-center mb-3.5">
             Your memories ({memories.length})
           </p>
+          {retentionDays !== null && memories.some((m) => m.imageUrl) && (
+            <p className="text-white/55 text-xs text-center -mt-2 mb-3.5">
+              Photos are kept for {retentionDays} days, so save any you love.
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-3">
             {memories.map((m) => (
               <div key={m._id} className="rounded-[18px] overflow-hidden bg-white/10 border border-white/[0.16]">
