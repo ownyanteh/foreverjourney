@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema, Types } from 'mongoose'
+import { DEFAULT_ROUTE_INTRO, DEFAULT_PROPOSAL_MESSAGE } from '@/lib/journey-defaults'
 
 export type JourneyStatus = 'draft' | 'active' | 'completed' | 'deactivated'
 
@@ -72,8 +73,7 @@ const WelcomeContentSchema = new Schema<IWelcomeContent>(
     greeting: { type: String, default: 'Hey, my love.' },
     introduction: {
       type: String,
-      default:
-        "I've planned a little adventure for you. Follow the clues, enjoy the journey, and trust that every step has a reason. Are you ready?",
+      default: DEFAULT_ROUTE_INTRO,
     },
     backgroundImageUrl: { type: String, default: null },
     musicUrl: { type: String, default: null },
@@ -95,8 +95,7 @@ const ProposalContentSchema = new Schema<IProposalContent>(
     title: { type: String, default: 'You made it, my love.' },
     mainMessage: {
       type: String,
-      default:
-        "You are the person I want to spend every adventure with. Every moment with you is a treasure I never want to lose.",
+      default: DEFAULT_PROPOSAL_MESSAGE,
     },
     finalQuestion: { type: String, default: 'Will you marry me?' },
     yesLabel: { type: String, default: 'YES! ❤️' },

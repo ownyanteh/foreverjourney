@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
     const session = await getAdminSessionFromReq(req, res)
     session.adminId = user._id.toString()
     session.email = user.email
+    session.name = user.name || ''
     session.role = 'admin'
     session.isLoggedIn = true
     await session.save()

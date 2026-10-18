@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { DEFAULT_ROUTE_INTRO, DEFAULT_QUESTIONS_INTRO } from '@/lib/journey-defaults'
 import { JourneyTypeCards, type JourneyMode } from '@/components/admin/JourneyModeSelector'
 import {
   adminCard,
@@ -32,10 +33,8 @@ import {
 
 type FormData = z.infer<typeof createJourneySchema>
 
-const ROUTE_INTRO =
-  "I've planned a little adventure for you. Follow the clues, enjoy the journey, and trust that every step has a reason. Are you ready?"
-const QUESTIONS_INTRO =
-  "I want to take a moment to remember some of the moments we've shared, through your eyes. Are you ready?"
+const ROUTE_INTRO = DEFAULT_ROUTE_INTRO
+const QUESTIONS_INTRO = DEFAULT_QUESTIONS_INTRO
 
 export default function NewJourneyPage() {
   const router = useRouter()

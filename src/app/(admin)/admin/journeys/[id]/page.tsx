@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import JourneyStatusControls from '@/components/admin/JourneyStatusControls'
 import JourneyModeSelector from '@/components/admin/JourneyModeSelector'
+import SetupChecklist from '@/components/admin/SetupChecklist'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
 import {
@@ -112,6 +113,20 @@ export default async function JourneyOverviewPage({ params }: Params) {
         journeyId={journeyId}
         mode={isQuestions ? 'questions' : 'route'}
         locked={journey.status === 'active'}
+      />
+
+      <SetupChecklist
+        journey={{
+          _id: journeyId,
+          mode: isQuestions ? 'questions' : 'route',
+          status: journey.status,
+          welcomeIntroduction: journey.welcomeContent?.introduction ?? '',
+          questionCount: questionCount,
+          hasFinalDestination: Boolean(journey.finalDestination?.latitude),
+          checkpointCount: checkpoints.length,
+          proposalMessage: journey.proposalContent?.mainMessage ?? '',
+          hasInvitation: Boolean(journey.invitationTokenHash),
+        }}
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-3">

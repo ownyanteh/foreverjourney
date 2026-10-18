@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import AdminShell from '@/components/admin/AdminShell'
 
 export const metadata: Metadata = {
-  title: { template: '%s | Our Forever Journey Admin', default: 'Admin' },
+  title: { template: '%s | Our Forever Journey', default: 'Dashboard' },
   robots: { index: false, follow: false },
 }
 

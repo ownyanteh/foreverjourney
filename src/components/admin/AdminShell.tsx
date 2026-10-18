@@ -77,10 +77,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <aside className="hidden lg:flex flex-col w-[220px] bg-white/70 backdrop-blur-sm border-r border-blush-200 fixed inset-y-0 left-0 z-30">
         <div className="flex items-center gap-2 px-6 py-5 border-b border-blush-200">
           <Heart className="h-5 w-5 text-burgundy fill-burgundy" />
-          <span className="font-serif font-semibold text-burgundy text-lg">Admin</span>
+          <span className="font-serif font-semibold text-burgundy text-base leading-tight">Our Forever Journey</span>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1" aria-label="Admin navigation">
+        <nav className="flex-1 px-3 py-4 space-y-1" aria-label="Main navigation">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -113,7 +113,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
       <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white/85 backdrop-blur-sm border-b border-blush-200 flex items-center justify-between px-4 h-14">
         <div className="flex items-center gap-2">
           <Heart className="h-4 w-4 text-burgundy fill-burgundy" />
-          <span className="font-serif font-semibold text-burgundy text-[17px]">Admin</span>
+          <span className="font-serif font-semibold text-burgundy text-[17px]">Our Forever Journey</span>
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}

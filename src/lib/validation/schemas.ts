@@ -28,6 +28,12 @@ export const loginSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters').max(128),
 })
 
+export const signupSchema = z.object({
+  name: z.string().trim().min(1, 'Please enter your name').max(60, 'Name is too long'),
+  email: z.string().trim().email('Invalid email address').max(254).toLowerCase(),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(128, 'Password is too long'),
+})
+
 // ── Journey schemas ────────────────────────────────────────────────────────────
 
 export const welcomeContentSchema = z.object({

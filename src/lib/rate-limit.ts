@@ -10,6 +10,13 @@ const loginLimiter = new RateLimiterMemory({
   blockDuration: 60 * 15,
 })
 
+/** Sign-ups: 5 accounts per hour per IP */
+const signupLimiter = new RateLimiterMemory({
+  points: 5,
+  duration: 60 * 60,
+  blockDuration: 60 * 60,
+})
+
 /** Invitation token resolution: 20 per minute per IP */
 const invitationLimiter = new RateLimiterMemory({
   points: 20,
@@ -73,6 +80,10 @@ async function checkLimit(
 
 export async function checkLoginRateLimit(req: NextRequest): Promise<RateLimitResult> {
   return checkLimit(loginLimiter, `login:${getClientIP(req)}`)
+}
+
+export async function checkSignupRateLimit(req: NextRequest): Promise<RateLimitResult> {
+  return checkLimit(signupLimiter, `signup:${getClientIP(req)}`)
 }
 
 export async function checkInvitationRateLimit(req: NextRequest): Promise<RateLimitResult> {

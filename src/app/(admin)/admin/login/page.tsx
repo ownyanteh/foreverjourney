@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -54,7 +55,7 @@ export default function AdminLoginPage() {
             <Heart className="h-[30px] w-[30px] text-burgundy fill-burgundy" strokeWidth={1.5} />
           </div>
           <h1 className="font-serif text-[26px] font-semibold text-charcoal">Our Forever Journey</h1>
-          <p className="text-sm text-charcoal/60 mt-1">Administrator Portal</p>
+          <p className="text-sm text-charcoal/60 mt-1">Sign in to plan your proposal</p>
         </div>
 
         {/* Form */}
@@ -126,8 +127,11 @@ export default function AdminLoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-charcoal/40 mt-6">
-          This portal is for administrators only.
+        <p className="text-center text-sm text-charcoal/60 mt-6">
+          New here?{' '}
+          <Link href="/signup" className="font-medium text-burgundy hover:text-burgundy-600 underline-offset-4 hover:underline">
+            Create an account
+          </Link>
         </p>
       </div>
     </div>

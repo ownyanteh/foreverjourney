@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export interface AdminSessionData {
   adminId?: string
   email?: string
+  name?: string
   role?: 'admin'
   isLoggedIn?: boolean
 }

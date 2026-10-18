@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
 export interface IAdminUser extends Document {
+  name: string
   email: string
   passwordHash: string
   role: 'admin'
@@ -11,6 +12,8 @@ export interface IAdminUser extends Document {
 
 const AdminUserSchema = new Schema<IAdminUser>(
   {
+    // Display name, used to greet the user on their dashboard
+    name: { type: String, default: '', trim: true, maxlength: 60 },
     email: {
       type: String,
       required: true,

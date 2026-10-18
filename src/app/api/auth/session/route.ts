@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     isLoggedIn: true,
     email: session.email,
+    name: session.name ?? '',
     adminId: session.adminId,
   })
 }

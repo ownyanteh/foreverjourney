@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { getAdminSession } from '@/lib/auth/session'
 import { connectDB } from '@/lib/db/connect'
 import { Journey } from '@/lib/db/models/Journey'
+import { AdminUser } from '@/lib/db/models/AdminUser'
 import { JourneyEvent } from '@/lib/db/models/JourneyEvent'
 import { Checkpoint } from '@/lib/db/models/Checkpoint'
 import { ProposalResponse } from '@/lib/db/models/ProposalResponse'
@@ -33,6 +34,9 @@ export default async function AdminDashboardPage() {
 
   await connectDB()
 
+  const account = (await AdminUser.findById(session.adminId).select('name').lean()) as { name?: string } | null
+  const firstName = account?.name?.trim().split(/\s+/)[0] ?? ''
+
   const journeys = (await Journey.find({ adminId: session.adminId })
     .sort({ updatedAt: -1 })
     .limit(5)
@@ -60,7 +64,9 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className={adminPageTitleLg}>Dashboard</h1>
-          <p className="text-[15px] text-charcoal/60 mt-1.5">Welcome back. Here&apos;s what&apos;s happening.</p>
+          <p className="text-[15px] text-charcoal/60 mt-1.5">
+            {firstName ? `Welcome back, ${firstName}.` : 'Welcome back.'} Here&apos;s what&apos;s happening.
+          </p>
         </div>
         <Button asChild className={adminBtnPrimary}>
           <Link href="/admin/journeys/new">

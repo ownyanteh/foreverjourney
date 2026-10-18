@@ -5,10 +5,11 @@ import { JourneySession } from '@/lib/db/models/JourneySession'
 import { JourneyEvent } from '@/lib/db/models/JourneyEvent'
 import { ProposalResponse } from '@/lib/db/models/ProposalResponse'
 import { requireAdminSession } from '@/lib/auth/session'
+import { deleteMemories } from '@/lib/memories'
 
 type Params = { params: Promise<{ id: string }> }
 
-export async function POST(_req: NextRequest, { params }: Params) {
+export async function POST(req: NextRequest, { params }: Params) {
   try {
     const session = await requireAdminSession()
     const { id } = await params
@@ -17,14 +18,24 @@ export async function POST(_req: NextRequest, { params }: Params) {
     const journey = await Journey.findOne({ _id: id, adminId: session.adminId })
     if (!journey) return NextResponse.json({ error: 'Not found.' }, { status: 404 })
 
+    // Optional: { deleteMemories: true } also removes shared photos/messages
+    let alsoDeleteMemories = false
+    try {
+      const body = await req.json()
+      alsoDeleteMemories = body?.deleteMemories === true
+    } catch {
+      // No body: keep memories
+    }
+
     // Wipe all journey history: sessions (progress), event timeline and the
-    // proposal response. Shared memories (photos/messages) are kept on purpose.
+    // proposal response. Shared memories are kept unless asked otherwise.
     // The recipient's old cookie points at a deleted session, so their next
     // visit starts a fresh session automatically.
     await Promise.all([
       JourneySession.deleteMany({ journeyId: id }),
       JourneyEvent.deleteMany({ journeyId: id }),
       ProposalResponse.deleteMany({ journeyId: id }),
+      alsoDeleteMemories ? deleteMemories({ journeyId: id }) : Promise.resolve(0),
     ])
 
     journey.status = 'draft'

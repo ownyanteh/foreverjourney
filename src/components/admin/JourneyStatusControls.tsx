@@ -21,11 +21,18 @@ export default function JourneyStatusControls({ journeyId, status }: Props) {
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState('')
 
+  const [resetDeletesMemories, setResetDeletesMemories] = useState(false)
+
   async function callAction(action: 'activate' | 'deactivate' | 'reset') {
     setLoading(action)
     setError('')
     try {
-      const res = await fetch(`/api/admin/journeys/${journeyId}/${action}`, { method: 'POST' })
+      const res = await fetch(`/api/admin/journeys/${journeyId}/${action}`, {
+        method: 'POST',
+        ...(action === 'reset'
+          ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deleteMemories: resetDeletesMemories }) }
+          : {}),
+      })
       const json = await res.json()
       if (!res.ok) { setError(json.error || `Failed to ${action}.`); return }
       router.refresh()
@@ -83,9 +90,23 @@ export default function JourneyStatusControls({ journeyId, status }: Props) {
                 <AlertDialogDescription>
                   This sets the journey back to Draft and permanently deletes all of its history:
                   progress, checkpoint unlocks, the event timeline and the yes/no response.
-                  Shared photos and messages are kept.
+                  {resetDeletesMemories
+                    ? ' Shared photos and messages will also be deleted.'
+                    : ' Shared photos and messages are kept.'}
                 </AlertDialogDescription>
               </AlertDialogHeader>
+              <label className="flex items-start gap-3 rounded-xl border border-blush-200 bg-blush-100/50 px-3.5 py-3 text-sm text-charcoal cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={resetDeletesMemories}
+                  onChange={(e) => setResetDeletesMemories(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 accent-burgundy"
+                />
+                <span>
+                  Also delete shared photos and messages
+                  <span className="block text-xs text-charcoal/55 mt-0.5">Removes them permanently, including the photo files. This can&apos;t be undone.</span>
+                </span>
+              </label>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction

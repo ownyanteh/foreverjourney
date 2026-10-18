@@ -4,8 +4,7 @@ import { Journey } from '@/lib/db/models/Journey'
 import { Checkpoint } from '@/lib/db/models/Checkpoint'
 import { requireAdminSession } from '@/lib/auth/session'
 import { updateJourneySchema } from '@/lib/validation/schemas'
-import { Memory } from '@/lib/db/models/Memory'
-import { deleteImages } from '@/lib/cloudinary'
+import { deleteMemories } from '@/lib/memories'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -106,10 +105,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     await Checkpoint.deleteMany({ journeyId: id })
 
     // Cascade delete shared memories and their photos
-    const memories = (await Memory.find({ journeyId: id }).select('imagePublicId').lean()) as { imagePublicId: string | null }[]
-    const publicIds = memories.map((m) => m.imagePublicId).filter((p): p is string => Boolean(p))
-    await deleteImages(publicIds).catch((err) => console.error('[DELETE journey] Cloudinary cleanup failed', err))
-    await Memory.deleteMany({ journeyId: id })
+    await deleteMemories({ journeyId: id })
 
     return NextResponse.json({ success: true })
   } catch (err) {
